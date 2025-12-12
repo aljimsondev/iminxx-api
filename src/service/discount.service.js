@@ -20,6 +20,18 @@ exports.fetchDiscount = async (payload) => {
       },
     },
   );
+  const data = response.data;
 
-  return response.data;
+  if (data?.errors) {
+    return {
+      data: null,
+      errors: data?.errors,
+      success: false,
+    };
+  }
+
+  return {
+    data: data.data.discountNodes.nodes,
+    success: true,
+  };
 };
