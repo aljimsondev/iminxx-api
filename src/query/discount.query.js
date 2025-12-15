@@ -1,5 +1,5 @@
 // GraphQL Query for getting discount details
-export const GET_DISCOUNT_DETAILS_QUERY = `
+exports.GET_DISCOUNT_DETAILS_QUERY = `
   query GetDiscount($query: String!) {
     discountNodes(first: 100, query: $query) {
       nodes {
@@ -78,6 +78,19 @@ export const GET_DISCOUNT_DETAILS_QUERY = `
               orderDiscounts
               productDiscounts
               shippingDiscounts
+            }
+            context {
+              ... on DiscountCustomers {
+                customers {
+                  id
+                }
+              }
+              ... on DiscountCustomerSegments {
+                segments {
+                  id
+                  name
+                }
+              }
             }
           customerBuys {
             isOneTimePurchase
