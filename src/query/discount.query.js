@@ -12,9 +12,17 @@ exports.GET_DISCOUNT_DETAILS_QUERY = `
             status
             startsAt
             endsAt
-            codes(first: 10) {
-              nodes {
-                code
+            appliesOncePerCustomer
+            usageLimit
+            minimumRequirement {
+              ... on DiscountMinimumQuantity {
+                greaterThanOrEqualToQuantity
+              }
+              ... on DiscountMinimumSubtotal {
+                greaterThanOrEqualToSubtotal {
+                  amount
+                  currencyCode
+                }
               }
             }
             customerGets {
@@ -27,6 +35,19 @@ exports.GET_DISCOUNT_DETAILS_QUERY = `
                     amount
                     currencyCode
                   }
+                }
+              }
+            }
+            context {
+              ... on DiscountCustomers {
+                customers {
+                  id
+                }
+              }
+              ... on DiscountCustomerSegments {
+                segments {
+                  id
+                  name
                 }
               }
             }
@@ -74,6 +95,7 @@ exports.GET_DISCOUNT_DETAILS_QUERY = `
             status
             startsAt
             endsAt
+            usesPerOrderLimit
             combinesWith{
               orderDiscounts
               productDiscounts

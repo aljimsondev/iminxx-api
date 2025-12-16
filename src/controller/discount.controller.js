@@ -41,7 +41,63 @@ function constructCombination(discount) {
   return (combinationSummary += ' discounts');
 }
 
-function constructPromoDetails(discount) {
+function constructPromoBgxyDetails(discount) {
+  const summary = discount.summary.split('•')[0];
+  const targetCustomers = discount?.context?.customers || [];
+  const startDate = new Date(discount.startsAt);
+  const endDate = discount.endsAt;
+  const usesPerOrderLimit = discount.usesPerOrderLimit;
+
+  let promoPeriod = `Active from ${formatDateDetails(startDate)}`;
+
+  if (endDate) {
+    promoPeriod += ` until ${formatDateDetails(new Date(endDate))}`;
+  }
+
+  return {
+    summary: summary,
+    target_customers:
+      targetCustomers.length > 0
+        ? 'Applies to specific customers!'
+        : 'Applies to all customers',
+    promo_period: promoPeriod,
+    discount_combination: constructCombination(discount),
+    title: discount.title,
+    order_limit_usage: usesPerOrderLimit
+      ? ''
+      : `${usesPerOrderLimit} use per order`,
+  };
+}
+
+function constructMinRequirement(discount) {
+  let minimumRequirement = 'No minimum purchase requirement';
+
+  if (discount.minimumRequirement?.greaterThanOrEqualToQuantity) {
+    minimumRequirement = `Minimum quantity of ${discount.minimumRequirement.greaterThanOrEqualToQuantity}`;
+  } else if (discount.minimumRequirement?.greaterThanOrEqualToSubtotal) {
+    minimumRequirement = `Minimum quantity of ${discount.minimumRequirement.greaterThanOrEqualToQuantity}`;
+  }
+
+  return minimumRequirement;
+}
+
+function constructUsageLimit(discount) {
+  let usage;
+  if (discount?.usageLimit) {
+    const useTense = discount.usageLimit > 1 ? 'uses' : 'use';
+
+    usage = `Limit of ${discount?.usageLimit} ${useTense}`;
+  }
+
+  if (discount?.appliesOncePerCustomer) {
+    if (discount?.usageLimit) usage += ', one per customer';
+    else usage += 'one per customer';
+  }
+
+  return usage;
+}
+
+function constructBasicDiscountDetails(discount) {
   const summary = discount.summary.split('•')[0];
   const targetCustomers = discount?.context?.customers || [];
   const startDate = new Date(discount.startsAt);
@@ -61,6 +117,9 @@ function constructPromoDetails(discount) {
         : 'Applies to all customers',
     promo_period: promoPeriod,
     discount_combination: constructCombination(discount),
+    title: discount.title,
+    minimum_requirement: constructMinRequirement(discount),
+    usage_limit: constructUsageLimit(discount),
   };
 }
 
@@ -77,10 +136,11 @@ exports.getDiscountDetails = async (req, res) => {
       });
 
     const discount = data[0]?.discount;
+    console.log(discount);
 
     res.json({
       success: true,
-      data: constructPromoDetails(discount),
+      data: constructBasicDiscountDetails(discount),
     });
   } catch (err) {
     console.error('getDiscountDetails Error:', err);
