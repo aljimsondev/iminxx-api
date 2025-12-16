@@ -63,6 +63,17 @@ exports.GET_DISCOUNT_DETAILS_QUERY = `
             status
             startsAt
             endsAt
+            minimumRequirement {
+              ... on DiscountMinimumQuantity {
+                greaterThanOrEqualToQuantity
+              }
+              ... on DiscountMinimumSubtotal {
+                greaterThanOrEqualToSubtotal {
+                  amount
+                  currencyCode
+                }
+              }
+            }
             customerGets {
               value {
                 ... on DiscountPercentage {
@@ -75,6 +86,24 @@ exports.GET_DISCOUNT_DETAILS_QUERY = `
                   }
                 }
               }
+            }
+            context {
+              ... on DiscountCustomers {
+                customers {
+                  id
+                }
+              }
+              ... on DiscountCustomerSegments {
+                segments {
+                  id
+                  name
+                }
+              }
+            }
+            combinesWith {
+              orderDiscounts
+              productDiscounts
+              shippingDiscounts
             }
           }
           ... on DiscountCodeBxgy {
@@ -226,10 +255,49 @@ exports.GET_DISCOUNT_DETAILS_QUERY = `
             status
             startsAt
             endsAt
+            appliesOncePerCustomer
+            usageLimit
             codes(first: 10) {
               nodes {
                 code
               }
+            }
+            destinationSelection {
+              ... on DiscountCountries {
+                countries
+              }
+
+              ... on DiscountCountryAll {
+                allCountries
+              }
+            }
+            minimumRequirement {
+              ... on DiscountMinimumQuantity {
+                greaterThanOrEqualToQuantity
+              }
+              ... on DiscountMinimumSubtotal {
+                greaterThanOrEqualToSubtotal {
+                  amount
+                  currencyCode
+                }
+              }
+            }
+            context {
+              ... on DiscountCustomers {
+                customers {
+                  id
+                }
+              }
+              ... on DiscountCustomerSegments {
+                segments {
+                  id
+                  name
+                }
+              }
+            }
+            combinesWith {
+              orderDiscounts
+              productDiscounts
             }
           }
           ... on DiscountAutomaticFreeShipping {
