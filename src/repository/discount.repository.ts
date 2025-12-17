@@ -1,8 +1,8 @@
 const { SUPPORTED_COUNTRIES } = require('../constants/countries');
 const currencyFormatter = require('../utils/amount-formatter');
 
-module.exports = class DiscountRepository {
-  getFullDetailsByType(discount) {
+export default class DiscountRepository {
+  getFullDetailsByType(discount: any) {
     switch (discount.__typename) {
       case 'DiscountCodeBasic':
         return this.constructBasicDiscountDetails(discount);
@@ -17,7 +17,7 @@ module.exports = class DiscountRepository {
     }
   }
 
-  formatDateDetails(date) {
+  formatDateDetails(date: Date) {
     if (!(date instanceof Date)) throw new Error('Invalid date!');
 
     return date.toLocaleDateString('en-US', {
@@ -26,7 +26,7 @@ module.exports = class DiscountRepository {
     });
   }
 
-  constructCombination(discount) {
+  constructCombination(discount: any) {
     const combination = [];
 
     if (discount.combinesWith?.orderDiscounts) combination.push('order');
@@ -57,7 +57,7 @@ module.exports = class DiscountRepository {
 
     return (combinationSummary += ' discounts');
   }
-  constructMinRequirement(discount) {
+  constructMinRequirement(discount: any) {
     let minimumRequirement = 'No minimum purchase requirement';
 
     if (discount.minimumRequirement?.greaterThanOrEqualToQuantity) {
@@ -77,7 +77,7 @@ module.exports = class DiscountRepository {
     return minimumRequirement;
   }
 
-  constructUsageLimit(discount) {
+  constructUsageLimit(discount: any) {
     let usage = '';
     if (discount?.usageLimit) {
       const useTense = discount.usageLimit > 1 ? 'uses' : 'use';
@@ -93,7 +93,7 @@ module.exports = class DiscountRepository {
     return usage;
   }
 
-  constructPromoPeriod(discount) {
+  constructPromoPeriod(discount: any) {
     const startDate = new Date(discount.startsAt);
     const endDate = discount.endsAt;
     let promoPeriod = `Promotion runs from ${this.formatDateDetails(
@@ -105,7 +105,7 @@ module.exports = class DiscountRepository {
     }
     return promoPeriod;
   }
-  constructShippingDestination(discount) {
+  constructShippingDestination(discount: any) {
     let dest;
     if (discount?.destinationSelection?.allCountries) {
       dest = 'For all countries';
@@ -131,7 +131,7 @@ module.exports = class DiscountRepository {
 
     return dest;
   }
-  constructBasicDiscountDetails(discount) {
+  constructBasicDiscountDetails(discount: any) {
     const summary = discount.summary.split('•')[0];
     const targetCustomers = discount?.context?.customers || [];
 
@@ -151,7 +151,7 @@ module.exports = class DiscountRepository {
     return data;
   }
 
-  constructPromoAutoBxgyDetails(discount) {
+  constructPromoAutoBxgyDetails(discount: any) {
     const summary = discount.summary.split('•')[0];
     const targetCustomers = discount?.context?.customers || [];
     const usesPerOrderLimit = discount.usesPerOrderLimit;
@@ -165,7 +165,7 @@ module.exports = class DiscountRepository {
       promo_period: this.constructPromoPeriod(discount),
       discount_combination: this.constructCombination(discount),
       title: discount.title,
-    };
+    } as any;
 
     if (usesPerOrderLimit) {
       data.usage_limit = `${usesPerOrderLimit} use per order`;
@@ -174,7 +174,7 @@ module.exports = class DiscountRepository {
     return data;
   }
 
-  constructFreeShippingPromoDetails(discount) {
+  constructFreeShippingPromoDetails(discount: any) {
     const summary = discount.summary.split('•')[0];
     const targetCustomers = discount?.context?.customers || [];
 
@@ -194,4 +194,4 @@ module.exports = class DiscountRepository {
 
     return data;
   }
-};
+}

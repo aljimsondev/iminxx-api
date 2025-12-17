@@ -45,7 +45,10 @@
  * currencyFormatter(0.25, { style: 'percent' });
  * // => '25%'
  */
-module.exports = function currencyFormatter(amount, options = {}) {
+module.exports = function currencyFormatter(
+  amount: number | string,
+  options = {},
+) {
   if (!amount && amount !== 0) throw new Error('Invalid amount!');
 
   const defaults = {
@@ -66,7 +69,7 @@ module.exports = function currencyFormatter(amount, options = {}) {
 
   if (typeof amount === 'string') {
     // Remove any existing currency symbols, commas, and whitespace
-    const cleanAmount = amount.replace(/[$,\s]/g, '');
+    const cleanAmount = (amount as string).replace(/[$,\s]/g, '');
     numericAmount = parseFloat(cleanAmount);
   } else {
     numericAmount = Number(amount);
@@ -82,14 +85,14 @@ module.exports = function currencyFormatter(amount, options = {}) {
   // Use Intl.NumberFormat for proper formatting
   try {
     const formatter = new Intl.NumberFormat(config.locale, {
-      style: config.style,
+      style: config.style as any,
       currency: config.currency,
       minimumFractionDigits: config.minimumFractionDigits,
       maximumFractionDigits: config.maximumFractionDigits,
     });
 
     return formatter.format(numericAmount);
-  } catch (error) {
+  } catch (error: any) {
     // Fallback formatting if Intl.NumberFormat fails
     console.warn(
       'Intl.NumberFormat failed, using fallback formatting:',
