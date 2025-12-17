@@ -1,8 +1,8 @@
-const axios = require('axios');
-const { GET_DISCOUNT_DETAILS_QUERY } = require('../query/discount.query');
-const constructShopUrl = require('../utils/construct-shop-url');
+import axios from 'axios';
+import { GET_DISCOUNT_DETAILS_QUERY } from '../query/discount.query';
+import { constructShopUrl } from '../utils/construct-shop-url';
 
-exports.fetchDiscount = async (payload) => {
+export const fetchDiscount = async (payload: any) => {
   if (!payload.title) throw new Error('Promo title is missing!');
 
   const response = await axios.post(

@@ -1,9 +1,10 @@
-const discountService = require('../service/discount.service');
-const DiscountRepository = require('../repository/discount.repository');
+import { Request, Response } from 'express';
+import DiscountRepository from '../repository/discount.repository';
+import * as discountService from '../service/discount.service';
 
 const discountRepo = new DiscountRepository();
 
-exports.getDiscountDetails = async (req, res) => {
+export const getDiscountDetails = async (req: Request, res: Response) => {
   try {
     const { data, success, errors } = await discountService.fetchDiscount(
       req.body,
@@ -20,13 +21,13 @@ exports.getDiscountDetails = async (req, res) => {
 
     const details = discountRepo.getFullDetailsByType(discount);
 
-    res.json({
+    return res.json({
       success: true,
       data: details,
     });
-  } catch (err) {
+  } catch (err: any) {
     console.error('getDiscountDetails Error:', err);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: err.message || err,
     });
