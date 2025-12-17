@@ -1,5 +1,5 @@
-const { SUPPORTED_COUNTRIES } = require('../constants/countries');
-const currencyFormatter = require('../utils/amount-formatter');
+import { SUPPORTED_COUNTRIES } from '../constants/countries';
+import { currencyFormatter } from '../utils/amount-formatter';
 
 export default class DiscountRepository {
   getFullDetailsByType(discount: any) {
@@ -123,7 +123,10 @@ export default class DiscountRepository {
           const countryCode = discount.destinationSelection.countries[0];
           if (!countryCode) throw new Error('Unable to get country code');
 
-          const country = SUPPORTED_COUNTRIES[countryCode];
+          const country =
+            SUPPORTED_COUNTRIES[
+              countryCode as keyof typeof SUPPORTED_COUNTRIES
+            ];
           dest = `For ${country}`;
         }
       }
