@@ -17,7 +17,10 @@ export const getDiscountDetails = async (req: Request, res: Response) => {
       });
 
     const discount = data[0]?.discount;
-    console.log(discount);
+
+    if (process.env.NODE_ENV == 'development') {
+      console.log(discount);
+    }
 
     const details = discountRepo.getFullDetailsByType(discount);
 

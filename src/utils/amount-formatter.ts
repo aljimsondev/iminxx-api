@@ -45,10 +45,7 @@
  * currencyFormatter(0.25, { style: 'percent' });
  * // => '25%'
  */
-module.exports = function currencyFormatter(
-  amount: number | string,
-  options = {},
-) {
+export function currencyFormatter(amount: number | string, options = {}) {
   if (!amount && amount !== 0) throw new Error('Invalid amount!');
 
   const defaults = {
@@ -100,4 +97,4 @@ module.exports = function currencyFormatter(
     );
     return `$${numericAmount.toFixed(2)}`;
   }
-};
+}
