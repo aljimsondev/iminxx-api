@@ -24,6 +24,8 @@ export default class DiscountRepository {
         return this.constructPromoAutoBxgyDetails(discount);
       case 'DiscountCodeFreeShipping':
         return this.constructFreeShippingPromoDetails(discount);
+      case 'DiscountAutomaticFreeShipping':
+        return this.constructFreeShippingPromoDetails(discount);
       default:
         return null;
     }

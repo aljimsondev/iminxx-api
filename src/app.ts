@@ -3,6 +3,7 @@ import cors from 'cors';
 import express from 'express';
 import { generalLimiter } from './middleware/rate-limiter';
 import discountRoutes from './routes/discount.route';
+import productRoutes from './routes/product.route';
 
 const app = express();
 
@@ -18,5 +19,6 @@ app.get('/ping', (req, res) => {
 });
 
 app.use('/api/discount', discountRoutes);
+app.use('/api/product', productRoutes);
 
 export default app;
