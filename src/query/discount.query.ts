@@ -306,6 +306,43 @@ export const GET_DISCOUNT_DETAILS_QUERY = `
             status
             startsAt
             endsAt
+            destinationSelection {
+              ... on DiscountCountries {
+                countries
+              }
+
+              ... on DiscountCountryAll {
+                allCountries
+              }
+            }
+            minimumRequirement {
+              ... on DiscountMinimumQuantity {
+                greaterThanOrEqualToQuantity
+              }
+              ... on DiscountMinimumSubtotal {
+                greaterThanOrEqualToSubtotal {
+                  amount
+                  currencyCode
+                }
+              }
+            }
+            context {
+              ... on DiscountCustomers {
+                customers {
+                  id
+                }
+              }
+              ... on DiscountCustomerSegments {
+                segments {
+                  id
+                  name
+                }
+              }
+            }
+            combinesWith {
+              orderDiscounts
+              productDiscounts
+            }
           }
         }
       }
