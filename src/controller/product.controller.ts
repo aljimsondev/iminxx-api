@@ -13,8 +13,6 @@ export const getProductDetails = async (req: Request, res: Response) => {
         errors: errors,
       });
 
-    console.log(data);
-
     return res.json({
       success: true,
       data: data,
