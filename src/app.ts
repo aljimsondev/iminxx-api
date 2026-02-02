@@ -2,6 +2,7 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import express from 'express';
 import { generalLimiter } from './middleware/rate-limiter';
+import customerRoutes from './routes/customer.route';
 import discountRoutes from './routes/discount.route';
 import productRoutes from './routes/product.route';
 
@@ -20,5 +21,5 @@ app.get('/ping', (req, res) => {
 
 app.use('/api/discount', discountRoutes);
 app.use('/api/product', productRoutes);
-
+app.use('/api/customer', customerRoutes);
 export default app;
