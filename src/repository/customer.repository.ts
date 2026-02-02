@@ -3,6 +3,7 @@ import axios from 'axios';
 import { SHOPIFY_GRAPHQL } from '../constants/constant';
 import {
   GET_CUSTOMER_BIRTHDAY,
+  STOREFRONT_CUSTOMER_QUERY,
   UPDATE_CUSTOMER_QUERY,
 } from '../query/customer.query';
 import { UpdateCustomerData } from '../types/customer';
@@ -93,5 +94,40 @@ export default class CustomerRepository {
         errors: err?.message || err,
       };
     }
+  }
+  /**
+   * To check if customerAccessToken is valid, we need to query storefront-api with the token. If the result customer is matched then we can proceed to the next step
+   * @param accesToken
+   */
+  async validateCustomerByAccessToken(
+    accesToken: string,
+  ): Promise<{ customer: null | { email: string; id: string } }> {
+    if (!accesToken) throw new Error('Customer accessToken is required!');
+    const variables = {
+      customerAccessToken: accesToken,
+    };
+
+    const response = await fetch(process.env.STOREFRONT_API_ENDPOINT!, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Shopify-Storefront-Access-Token':
+          process.env.STOREFRONT_ACCESS_TOKEN,
+      },
+      body: JSON.stringify({
+        query: STOREFRONT_CUSTOMER_QUERY,
+        variables: variables,
+      }),
+    });
+
+    const body = await response.json();
+
+    if (body) {
+      return (body as any)?.data;
+    }
+
+    return {
+      customer: null,
+    };
   }
 }
