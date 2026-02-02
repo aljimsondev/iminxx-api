@@ -18,3 +18,10 @@ export const GET_CUSTOMER_BIRTHDAY = `query getCustomerBirthdate($customerId: ID
       }
     }
   }`;
+
+export const STOREFRONT_CUSTOMER_QUERY = `query getCustomerByAccessToken($customerAccessToken: String!){
+  customer(customerAccessToken: $customerAccessToken) {
+    id
+    email
+  }
+}`;

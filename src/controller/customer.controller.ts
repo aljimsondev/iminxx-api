@@ -4,9 +4,10 @@ import { updateCustomerSchema } from '../types/customer';
 
 export const getCustomerBithdate = async (req: Request, res: Response) => {
   try {
-    const { data, success, errors } = await customerService.getBirthdate(
-      req.params.customer_id,
-    );
+    const customerId = req.params.customer_id;
+
+    const { data, success, errors } =
+      await customerService.getBirthdate(customerId);
 
     if (!success)
       return res.status(500).json({
