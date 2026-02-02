@@ -13,4 +13,7 @@ export const generalLimiter = rateLimit({
     // Skip rate limiting for health checks
     return req.path === '/ping';
   },
+  validate: {
+    xForwardedForHeader: false,
+  },
 });
