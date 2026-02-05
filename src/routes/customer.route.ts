@@ -15,7 +15,7 @@ router.post(
   verifyCustomerAccessToken,
   updateAddress,
 );
-router.get('/get/:customer_id/birthdate', getCustomerBithdate);
-router.post('/wishlist/:customer_id/set', setWishlistedItem);
-router.post('/wishlist/:customer_id', syncWishlistedItem);
+router.get('/:customer_id/birthdate', getCustomerBithdate);
+router.post('/:customer_id/wishlist/set', setWishlistedItem);
+router.post('/:customer_id/wishlist', syncWishlistedItem);
 export default router;
