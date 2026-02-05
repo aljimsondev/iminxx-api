@@ -22,8 +22,15 @@ export const generalLimiter = rateLimit({
   keyGenerator: (req, res) => {
     let ip = req.ip;
     try {
-      const forwards = parseForwarded(req.headers.forwarded!);
-      ip = forwards[forwards.length - NUMBER_OF_PROXIES_TO_TRUST].for;
+      if (req.headers && req.headers.forwarded === undefined) {
+        if (req.headers?.forwarded === undefined) {
+          // Set a default empty string or fix the value
+          req.headers.forwarded = '';
+        } else {
+          const forwards = parseForwarded(req.headers.forwarded);
+          ip = forwards[forwards.length - NUMBER_OF_PROXIES_TO_TRUST].for;
+        }
+      }
     } catch (ex) {
       console.error(
         `Error parsing Forwarded header ${req.headers.forwarded} from ${req.ip}:`,
