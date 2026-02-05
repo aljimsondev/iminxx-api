@@ -1,6 +1,7 @@
 import express from 'express';
 import {
   getCustomerBithdate,
+  setWishlistedItem,
   update,
   updateAddress,
 } from '../controller/customer.controller';
@@ -14,4 +15,5 @@ router.post(
   updateAddress,
 );
 router.get('/get/:customer_id/birthdate', getCustomerBithdate);
+router.post('/wishlist/:customer_id/set', setWishlistedItem);
 export default router;

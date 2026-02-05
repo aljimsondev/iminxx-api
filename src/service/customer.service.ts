@@ -33,3 +33,18 @@ export const getBirthdate = async (customerId: string) => {
 
   return data;
 };
+
+export const setWishlistedItem = async ({
+  customerId,
+  productId,
+  action,
+}: {
+  customerId: string;
+  productId: string;
+  action: 'remove' | 'add';
+}) =>
+  await customerRepo.setWishlistedItem({
+    customerId,
+    productId,
+    action,
+  });

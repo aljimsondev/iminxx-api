@@ -1,6 +1,10 @@
 import { Request, Response } from 'express';
 import * as customerService from '../service/customer.service';
-import { addressSchema, updateCustomerSchema } from '../types/customer';
+import {
+  addressSchema,
+  updateCustomerSchema,
+  wishlistItemSchema,
+} from '../types/customer';
 
 export const getCustomerBithdate = async (req: Request, res: Response) => {
   try {
@@ -106,6 +110,52 @@ export const updateAddress = async (req: Request, res: Response) => {
     });
   } catch (err: any) {
     console.error('updateAddress Error:', err);
+    return res.status(500).json({
+      success: false,
+      error: err.message || err,
+    });
+  }
+};
+
+export const setWishlistedItem = async (req: Request, res: Response) => {
+  try {
+    const body = await req.body;
+
+    if (!body?.productId) throw new Error('Product ID is required!');
+
+    const {
+      success: parsingSuccess,
+      data: productId,
+      error,
+    } = wishlistItemSchema.safeParse(body.productId);
+
+    // return zod validation
+    if (!parsingSuccess) {
+      return res.json({
+        success: false,
+        error: JSON.parse(error?.message),
+      });
+    }
+
+    const {
+      error: wishlistError,
+      success,
+      data,
+    } = await customerService.setWishlistedItem({
+      customerId: req.params.customer_id,
+      productId,
+      action: body?.action || 'add',
+    });
+
+    if (!success) {
+      return res.json({
+        success: false,
+        error: wishlistError,
+      });
+    }
+
+    return res.json({ success: success, data });
+  } catch (err: any) {
     return res.status(500).json({
       success: false,
       error: err.message || err,

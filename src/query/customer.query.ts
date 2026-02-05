@@ -37,3 +37,33 @@ export const STOREFRONT_CUSTOMER_QUERY = `query getCustomerByAccessToken($custom
     email
   }
 }`;
+
+export const SET_WISHLISTED_ITEM_METAFIELD = `mutation MetafieldsSet($metafields: [MetafieldsSetInput!]!) {
+  metafieldsSet(metafields: $metafields) {
+    metafields {
+      key
+      namespace
+      value
+      createdAt
+      updatedAt
+    }
+    userErrors {
+      field
+      message
+      code
+    }
+  }
+}`;
+
+export const GET_WISHLISTED_ITEMS = `query GetWishlistedItems($ownerId: ID!) {
+  customer(id: $ownerId) {
+    metafields(keys: "custom.wishlisted_items", first: 1) {
+      edges {
+        node {
+          key
+          value
+        }
+      }
+    }
+  }
+}`;
