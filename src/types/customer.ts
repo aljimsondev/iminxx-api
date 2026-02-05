@@ -10,6 +10,24 @@ const metafieldInputSchema = z.object({
 
 export type MetafieldInput = z.infer<typeof metafieldInputSchema>;
 
+export const addressSchema = z.object({
+  address1: z.string(),
+  address2: z.string(),
+  city: z.string(),
+  company: z.string(),
+  countryCode: z.string(),
+  firstName: z.string(),
+  lastName: z.string(),
+  phone: z.string(),
+  provinceCode: z.string(),
+  zip: z.string(),
+  country: z.string(),
+  province: z.string(),
+  asDefault: z.boolean().default(false),
+});
+
+export type Address = z.infer<typeof addressSchema>;
+
 /**
  * THis is for extra validation before updating the customer data
  */
@@ -26,3 +44,9 @@ export const updateCustomerSchema = z.object({
 });
 
 export type UpdateCustomerData = z.infer<typeof updateCustomerSchema>;
+
+export const wishlistItemSchema = z.string().min(5).max(20);
+
+export const wishlistItemsSchema = z.array(wishlistItemSchema);
+
+export type WishlistItem = z.infer<typeof wishlistItemSchema>;

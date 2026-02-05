@@ -53,7 +53,6 @@ export const verifyCustomerAccessToken = async (
         .json({ success: false, error: 'Missing parameter customer_id!' });
     }
 
-    console.log(req.headers);
     const token = req.headers.authorization?.split(' ')[1]; // Bearer token
 
     if (!token) {
