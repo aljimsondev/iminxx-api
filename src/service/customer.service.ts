@@ -48,3 +48,15 @@ export const setWishlistedItem = async ({
     productId,
     action,
   });
+
+export const syncWishlistedItem = async ({
+  customerId,
+  productIds,
+}: {
+  customerId: string;
+  productIds: string[];
+}) =>
+  await customerRepo.syncWishlistedItem({
+    customerId,
+    productIds,
+  });

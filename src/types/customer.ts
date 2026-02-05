@@ -47,4 +47,6 @@ export type UpdateCustomerData = z.infer<typeof updateCustomerSchema>;
 
 export const wishlistItemSchema = z.string().min(5).max(20);
 
+export const wishlistItemsSchema = z.array(wishlistItemSchema);
+
 export type WishlistItem = z.infer<typeof wishlistItemSchema>;

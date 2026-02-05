@@ -319,4 +319,69 @@ export default class CustomerRepository {
       };
     }
   }
+
+  async syncWishlistedItem({
+    customerId,
+    productIds,
+  }: {
+    customerId: string;
+    productIds: string[];
+  }) {
+    try {
+      // added extra checks
+      if (!customerId) throw new Error('Missing customerId parameter!');
+      if (!productIds) throw new Error('Missing productId parameter!');
+
+      const variables = {
+        metafields: [
+          {
+            key: 'wishlisted_items',
+            namespace: 'custom',
+            ownerId: `gid://shopify/Customer/${customerId}`,
+            type: 'list.single_line_text_field',
+            value: JSON.stringify(productIds),
+          },
+        ],
+      };
+
+      const response = await axios.post(
+        SHOPIFY_GRAPHQL,
+        {
+          query: SET_WISHLISTED_ITEM_METAFIELD,
+          variables: variables,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Shopify-Access-Token': process.env.ADMIN_ACCESS_TOKEN,
+          },
+        },
+      );
+
+      const data = response.data;
+
+      if (data?.errors?.length > 0) {
+        return {
+          error: data?.errors,
+          success: false,
+        };
+      }
+
+      const metafieldData = data?.data?.metafieldsSet;
+
+      if (metafieldData?.userErrors?.length > 0) {
+        return { error: metafieldData.userErrors, success: false };
+      }
+
+      return {
+        data: metafieldData?.metafields,
+        success: true,
+      };
+    } catch (e: any) {
+      return {
+        success: false,
+        error: e?.message,
+      };
+    }
+  }
 }

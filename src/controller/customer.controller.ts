@@ -4,6 +4,7 @@ import {
   addressSchema,
   updateCustomerSchema,
   wishlistItemSchema,
+  wishlistItemsSchema,
 } from '../types/customer';
 
 export const getCustomerBithdate = async (req: Request, res: Response) => {
@@ -145,6 +146,51 @@ export const setWishlistedItem = async (req: Request, res: Response) => {
       customerId: req.params.customer_id,
       productId,
       action: body?.action || 'add',
+    });
+
+    if (!success) {
+      return res.json({
+        success: false,
+        error: wishlistError,
+      });
+    }
+
+    return res.json({ success: success, data });
+  } catch (err: any) {
+    return res.status(500).json({
+      success: false,
+      error: err.message || err,
+    });
+  }
+};
+
+export const syncWishlistedItem = async (req: Request, res: Response) => {
+  try {
+    const body = await req.body;
+
+    if (!body?.productIds) throw new Error('Product IDs is required!');
+
+    const {
+      success: parsingSuccess,
+      data: productIds,
+      error,
+    } = wishlistItemsSchema.safeParse(body.productIds);
+
+    // return zod validation
+    if (!parsingSuccess) {
+      return res.json({
+        success: false,
+        error: JSON.parse(error?.message),
+      });
+    }
+
+    const {
+      error: wishlistError,
+      success,
+      data,
+    } = await customerService.syncWishlistedItem({
+      customerId: req.params.customer_id,
+      productIds,
     });
 
     if (!success) {
