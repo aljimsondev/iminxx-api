@@ -2,6 +2,7 @@ import axios from 'axios';
 import 'dotenv/config';
 import { SHOPIFY_GRAPHQL } from '../constants/constant';
 import { CREATE_METAOBJECT_DEFINITION_QUERY } from '../query/metafield.query';
+import { modelDefinitions } from './field-definitions';
 
 export type Metaobject = {
   capabilities?: any;
@@ -10,7 +11,7 @@ export type Metaobject = {
   type: string;
 };
 
-type MetaobjectDefinitionInputType = {
+export type MetaobjectDefinitionInputType = {
   capabilities?: any;
   description?: string;
   key: string;
@@ -75,7 +76,10 @@ export class MetaobjectDefinitionGenerator extends MetaobjectDefinition {
   async generate() {
     console.info('Starting generating metaobject definitions...');
 
-    Promise.all([this.generateCustomDiscountDetails()]).finally(() => {
+    Promise.all([
+      this.generateCustomDiscountDetails(),
+      this.generateModelMetaobject(),
+    ]).finally(() => {
       console.info('Finished generating metaobject definitions!');
     });
   }
@@ -112,6 +116,31 @@ export class MetaobjectDefinitionGenerator extends MetaobjectDefinition {
     } catch (e) {
       console.warn(
         'Error generating custom discount details metaobject defination: Reason: ',
+        e,
+      );
+    }
+  }
+
+  async generateModelMetaobject() {
+    try {
+      console.info('Generating models metaobject defination...');
+
+      const { success, data, errors } = await this.create({
+        type: 'models_1',
+        name: 'Models',
+        description: 'Models metaobject containing models bio',
+        fieldDefinitions: modelDefinitions,
+      });
+
+      if (!success) throw errors;
+
+      console.info(
+        'Feature: Models metaobject defination created successfully! Data: ',
+      );
+      console.info(data);
+    } catch (e) {
+      console.warn(
+        'Error generating models metaobject defination: Reason: ',
         e,
       );
     }
