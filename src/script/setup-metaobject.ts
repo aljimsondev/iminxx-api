@@ -73,10 +73,10 @@ export class MetaobjectDefinitionGenerator extends MetaobjectDefinition {
   }
 
   async generate() {
-    console.info('Starting generating metaobject definations...');
+    console.info('Starting generating metaobject definitions...');
 
     Promise.all([this.generateCustomDiscountDetails()]).finally(() => {
-      console.info('Finished generating metaobject definations!');
+      console.info('Finished generating metaobject definitions!');
     });
   }
   async generateCustomDiscountDetails() {
@@ -86,7 +86,7 @@ export class MetaobjectDefinitionGenerator extends MetaobjectDefinition {
       );
 
       const { success, data, errors } = await this.create({
-        type: 'discount_2',
+        type: 'discount',
         name: 'Discount Details',
         description: 'Custom Discount Details for extra promotion capability',
         fieldDefinitions: [
