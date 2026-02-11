@@ -31,10 +31,30 @@ type MetaobjectDefinitionType = {
   type: string;
 };
 
+export type MetaobjectDefinitionReturnType = {
+  success: boolean;
+  data?: {
+    id: string;
+    name: string;
+    type: string;
+    fieldDefinitions: {
+      name: string;
+      key: string;
+    }[];
+  };
+  errors?: {
+    field: string;
+    message: string;
+    code: string;
+  }[];
+};
+
 class MetaobjectDefinition {
   constructor() {}
 
-  async create(definition: MetaobjectDefinitionType) {
+  async create(
+    definition: MetaobjectDefinitionType,
+  ): Promise<MetaobjectDefinitionReturnType> {
     const response = await axios.post(
       SHOPIFY_GRAPHQL,
       {
@@ -66,6 +86,24 @@ class MetaobjectDefinition {
       data: data?.metaobjectDefinition,
     };
   }
+
+  logError(e: any, fuctionName: string) {
+    const message = `Error occured while creating metafield definition at ${fuctionName}!`;
+
+    if (Array.isArray(e)) {
+      if (e.find((error) => error?.code === 'TAKEN'))
+        return console.warn(
+          `[INFO] (${fuctionName}): Metaobject definition already exist, skipping...`,
+        );
+
+      return console.error(`${message} Reason: ${e}`);
+    }
+
+    if (e?.message)
+      return console.error(`[ERROR] (${fuctionName}) Reason: ${e.message}`);
+
+    return console.error(`[ERROR] ${message} Reason: ${e}`);
+  }
 }
 
 export class MetaobjectDefinitionGenerator extends MetaobjectDefinition {
@@ -74,19 +112,24 @@ export class MetaobjectDefinitionGenerator extends MetaobjectDefinition {
   }
 
   async generate() {
-    console.info('Starting generating metaobject definitions...');
+    console.info('[START] Starting generating metaobject definitions...');
 
-    Promise.all([
-      this.generateCustomDiscountDetails(),
+    const [promoDetailsMetaobject, modelMetaobject] = await Promise.all([
+      this.generateCustomDiscountDetailsMetaobject(),
       this.generateModelMetaobject(),
-    ]).finally(() => {
-      console.info('Finished generating metaobject definitions!');
-    });
+    ]);
+
+    console.info('[END] Finished generating metaobject definitions!');
+
+    return {
+      promoDetailsMetaobject,
+      modelMetaobject,
+    };
   }
-  async generateCustomDiscountDetails() {
+  async generateCustomDiscountDetailsMetaobject() {
     try {
       console.info(
-        'Generating custom discount details metaobject defination...',
+        '[BEGIN] Generating custom discount details metaobject defination...',
       );
 
       const { success, data, errors } = await this.create({
@@ -110,23 +153,22 @@ export class MetaobjectDefinitionGenerator extends MetaobjectDefinition {
       if (!success) throw errors;
 
       console.info(
-        'Feature: Custom discount details metaobject defination created successfully! Data: ',
+        '[SUCCESS] Feature: Custom discount details metaobject defination created successfully! Data: ',
       );
       console.info(data);
+      return data;
     } catch (e) {
-      console.warn(
-        'Error generating custom discount details metaobject defination: Reason: ',
-        e,
-      );
+      this.logError(e, this.generateCustomDiscountDetailsMetaobject.name);
+      return undefined;
     }
   }
 
   async generateModelMetaobject() {
     try {
-      console.info('Generating models metaobject defination...');
+      console.info('[BEGIN] Generating models metaobject defination...');
 
       const { success, data, errors } = await this.create({
-        type: 'models',
+        type: 'models_1',
         name: 'Models',
         description: 'Models metaobject containing models bio',
         fieldDefinitions: modelDefinitions,
@@ -135,14 +177,14 @@ export class MetaobjectDefinitionGenerator extends MetaobjectDefinition {
       if (!success) throw errors;
 
       console.info(
-        'Feature: Models metaobject defination created successfully! Data: ',
+        '[SUCCESS] Feature: Models metaobject defination created successfully! Data: ',
       );
       console.info(data);
+
+      return data;
     } catch (e) {
-      console.warn(
-        'Error generating models metaobject defination: Reason: ',
-        e,
-      );
+      this.logError(e, this.generateModelMetaobject.name);
+      return undefined;
     }
   }
 }

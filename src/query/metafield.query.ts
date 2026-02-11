@@ -15,6 +15,7 @@ export const CREATE_METAFIELD_DEFINITION_QUERY = `mutation CreateMetafieldDefini
 export const CREATE_METAOBJECT_DEFINITION_QUERY = `mutation CreateMetaobjectDefinition($definition: MetaobjectDefinitionCreateInput!) {
   metaobjectDefinitionCreate(definition: $definition) {
     metaobjectDefinition {
+      id
       name
       type
       fieldDefinitions {
