@@ -270,7 +270,7 @@ export class ShopMetafieldDefinition extends MetafieldDefinition {
       const { success, data, errors } = await this.create({
         name: 'Feature: Custom Discount Details',
         namespace: 'custom',
-        key: 'discount_details_3',
+        key: 'discount_details',
         description:
           'Enable custom promotion details for additional marketing purposes',
         type: 'list.metaobject_reference',
