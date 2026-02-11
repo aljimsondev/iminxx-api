@@ -168,7 +168,7 @@ export class MetaobjectDefinitionGenerator extends MetaobjectDefinition {
       console.info('[BEGIN] Generating models metaobject defination...');
 
       const { success, data, errors } = await this.create({
-        type: 'models_1',
+        type: 'models',
         name: 'Models',
         description: 'Models metaobject containing models bio',
         fieldDefinitions: modelDefinitions,

@@ -330,21 +330,13 @@ export class ProductMetafieldDefinition extends MetafieldDefinition {
       const { success, data, errors } = await this.create({
         name: 'Product Models',
         namespace: 'custom',
-        key: 'product_models_1',
+        key: 'product_models',
         description:
           'For list of product models in product page models tab associated with the product',
         type: 'list.metaobject_reference',
         validations: [
           { name: 'metaobject_definition_id', value: modelMetaobject.id },
         ],
-        constraints: {
-          key: 'category',
-          values: [
-            'gid://shopify/TaxonomyCategory/bu', //bundles
-            'gid://shopify/TaxonomyCategory/aa', // Apparel & Accessories
-            'gid://shopify/TaxonomyCategory/na', // Uncategorized
-          ],
-        },
         ownerType: OWNER_TYPE.PRODUCT,
         access: {
           storefront: 'PUBLIC_READ',
