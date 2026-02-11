@@ -18,7 +18,7 @@ export type MetaobjectDefinitionInputType = {
   name?: string;
   required?: boolean;
   type: string;
-  validations?: { name: string; value: string }[];
+  validations?: { name: string; value: string | string[] }[];
 };
 
 type MetaobjectDefinitionType = {
@@ -126,7 +126,7 @@ export class MetaobjectDefinitionGenerator extends MetaobjectDefinition {
       console.info('Generating models metaobject defination...');
 
       const { success, data, errors } = await this.create({
-        type: 'models_1',
+        type: 'models',
         name: 'Models',
         description: 'Models metaobject containing models bio',
         fieldDefinitions: modelDefinitions,
