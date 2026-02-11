@@ -30,3 +30,15 @@ export const CREATE_METAOBJECT_DEFINITION_QUERY = `mutation CreateMetaobjectDefi
     }
   }
 }`;
+
+export const FIND_METAOBJECT_DEFINITION_BY_TYPE = `query FindMetaobjectByType($type: String! ) {
+  metaobjectDefinitionByType(type:$type) {
+    id
+    name
+    type
+    fieldDefinitions {
+      name
+      key
+    }
+  }
+}`;

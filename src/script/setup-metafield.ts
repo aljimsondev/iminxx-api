@@ -4,7 +4,7 @@ import { SHOPIFY_GRAPHQL } from '../constants/constant';
 import { CREATE_METAFIELD_DEFINITION_QUERY } from '../query/metafield.query';
 import { MetaobjectDefinitionReturnType } from './setup-metaobject';
 
-enum OWNER_TYPE {
+export enum OWNER_TYPE {
   COLLECTION = 'COLLECTION',
   CUSTOMER = 'CUSTOMER',
   SHOP = 'SHOP',
@@ -270,7 +270,7 @@ export class ShopMetafieldDefinition extends MetafieldDefinition {
       const { success, data, errors } = await this.create({
         name: 'Feature: Custom Discount Details',
         namespace: 'custom',
-        key: 'discount_details',
+        key: 'discount_details_3',
         description:
           'Enable custom promotion details for additional marketing purposes',
         type: 'list.metaobject_reference',
@@ -341,6 +341,7 @@ export class ProductMetafieldDefinition extends MetafieldDefinition {
         access: {
           storefront: 'PUBLIC_READ',
         },
+        pin: true,
       });
 
       if (!success) throw errors;

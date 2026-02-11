@@ -1,7 +1,10 @@
 import axios from 'axios';
 import 'dotenv/config';
 import { SHOPIFY_GRAPHQL } from '../constants/constant';
-import { CREATE_METAOBJECT_DEFINITION_QUERY } from '../query/metafield.query';
+import {
+  CREATE_METAOBJECT_DEFINITION_QUERY,
+  FIND_METAOBJECT_DEFINITION_BY_TYPE,
+} from '../query/metafield.query';
 import { modelDefinitions } from './field-definitions';
 
 export type Metaobject = {
@@ -87,6 +90,35 @@ class MetaobjectDefinition {
     };
   }
 
+  async findByType(type: string): Promise<MetaobjectDefinitionReturnType> {
+    const response = await axios.post(
+      SHOPIFY_GRAPHQL,
+      {
+        query: FIND_METAOBJECT_DEFINITION_BY_TYPE,
+        variables: {
+          type: type,
+        },
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Shopify-Access-Token': process.env.ADMIN_ACCESS_TOKEN,
+        },
+      },
+    );
+
+    if (response.data?.errors) {
+      return { errors: response.data?.errors, success: false };
+    }
+
+    const metaobject = response.data?.data?.metaobjectDefinitionByType;
+
+    return {
+      success: true,
+      data: metaobject,
+    };
+  }
+
   logError(e: any, fuctionName: string) {
     const message = `Error occured while creating metafield definition at ${fuctionName}!`;
 
@@ -132,8 +164,10 @@ export class MetaobjectDefinitionGenerator extends MetaobjectDefinition {
         '[BEGIN] Generating custom discount details metaobject defination...',
       );
 
+      const type = 'discount';
+
       const { success, data, errors } = await this.create({
-        type: 'discount',
+        type,
         name: 'Discount Details',
         description: 'Custom Discount Details for extra promotion capability',
         fieldDefinitions: [
@@ -150,7 +184,27 @@ export class MetaobjectDefinitionGenerator extends MetaobjectDefinition {
         ],
       });
 
-      if (!success) throw errors;
+      if (!success) {
+        // check if it already exists
+        const existed = errors?.find((error) => error.code === 'TAKEN');
+
+        if (!existed) throw errors;
+
+        console.info('[INFO] Product Model already exist, skipping...');
+        console.info('[PULLING] Getting Custom Discount Details metaobject...');
+        const {
+          data: existingMetaobject,
+          success: found,
+          errors: metaobjectErrors,
+        } = await this.findByType(type);
+
+        if (!found) throw metaobjectErrors;
+
+        console.info(
+          '[SUCCESS] Retrieved Custom Discount Details metaobject...',
+        );
+        return existingMetaobject;
+      }
 
       console.info(
         '[SUCCESS] Feature: Custom discount details metaobject defination created successfully! Data: ',
@@ -166,20 +220,37 @@ export class MetaobjectDefinitionGenerator extends MetaobjectDefinition {
   async generateModelMetaobject() {
     try {
       console.info('[BEGIN] Generating models metaobject defination...');
-
+      const type = 'models';
       const { success, data, errors } = await this.create({
-        type: 'models',
+        type: type,
         name: 'Models',
         description: 'Models metaobject containing models bio',
         fieldDefinitions: modelDefinitions,
       });
 
-      if (!success) throw errors;
+      if (!success) {
+        // check if it already exists
+        const existed = errors?.find((error) => error.code === 'TAKEN');
+
+        if (!existed) throw errors;
+
+        console.info('[INFO] Product Model already exist, skipping...');
+        console.info('[PULLING] Getting Product Model metaobject...');
+        const {
+          data: existingMetaobject,
+          success: found,
+          errors: metaobjectErrors,
+        } = await this.findByType(type);
+
+        if (!found) throw metaobjectErrors;
+
+        console.info('[SUCCESS] Retrieved Product Model metaobject...');
+        return existingMetaobject;
+      }
 
       console.info(
         '[SUCCESS] Feature: Models metaobject defination created successfully! Data: ',
       );
-      console.info(data);
 
       return data;
     } catch (e) {
