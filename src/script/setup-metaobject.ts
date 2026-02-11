@@ -5,7 +5,10 @@ import {
   CREATE_METAOBJECT_DEFINITION_QUERY,
   FIND_METAOBJECT_DEFINITION_BY_TYPE,
 } from '../query/metafield.query';
-import { modelDefinitions } from './field-definitions';
+import {
+  customDiscountDetailsDefinition,
+  modelDefinitions,
+} from './field-definitions';
 
 export type Metaobject = {
   capabilities?: any;
@@ -170,18 +173,7 @@ export class MetaobjectDefinitionGenerator extends MetaobjectDefinition {
         type,
         name: 'Discount Details',
         description: 'Custom Discount Details for extra promotion capability',
-        fieldDefinitions: [
-          {
-            name: 'Discount Title',
-            key: 'discount_title',
-            type: 'single_line_text_field',
-          },
-          {
-            key: 'details',
-            name: 'Details',
-            type: 'rich_text_field',
-          },
-        ],
+        fieldDefinitions: customDiscountDetailsDefinition,
       });
 
       if (!success) {

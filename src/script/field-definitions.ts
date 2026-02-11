@@ -180,3 +180,16 @@ export const modelDefinitions: MetaobjectDefinitionInputType[] = [
     ],
   },
 ];
+
+export const customDiscountDetailsDefinition = [
+  {
+    name: 'Discount Title',
+    key: 'discount_title',
+    type: 'single_line_text_field',
+  },
+  {
+    key: 'details',
+    name: 'Details',
+    type: 'rich_text_field',
+  },
+];
