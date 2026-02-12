@@ -1,3 +1,4 @@
+import { MetaobjectDefinitionInputType } from './core';
 import {
   bodysuitSizeOptions,
   braSizeOptions,
@@ -12,7 +13,6 @@ import {
   thermalTopSizeOptions,
   ukSizeBottomsOptions,
 } from './field-validation';
-import { MetaobjectDefinitionInputType } from './setup-metaobject';
 
 export const modelDefinitions: MetaobjectDefinitionInputType[] = [
   { key: 'label', name: 'Name', type: 'single_line_text_field' },
