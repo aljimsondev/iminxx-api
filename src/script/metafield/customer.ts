@@ -11,6 +11,7 @@ export class CustomerMetafieldDefinition extends MetafieldDefinition {
     );
     Promise.all([
       this.generateCustomerWishlistedItemsMetafield(),
+      this.generateCustomerWishlistsSyncDateMetafield(),
       this.generateCustomerBirthdateMetafield(),
     ]).finally(() => {
       console.info('[END] Finished generating customer metafield definations!');
@@ -41,6 +42,32 @@ export class CustomerMetafieldDefinition extends MetafieldDefinition {
       console.info(data);
     } catch (e) {
       this.logError(e, this.generateCustomerWishlistedItemsMetafield.name);
+    }
+  }
+
+  async generateCustomerWishlistsSyncDateMetafield() {
+    try {
+      console.info(
+        '[BEGIN] Generating customer wishlisted items sync date metafield defination...',
+      );
+
+      const { success, data, errors } = await this.create({
+        name: 'Wishlists Sync Date',
+        namespace: 'custom',
+        key: 'wishlists_sync_date',
+        description: 'Date and Time when the wishlists last sync!',
+        type: 'date_time',
+        ownerType: OWNER_TYPE.CUSTOMER,
+        pin: true,
+      });
+      if (!success) throw errors;
+
+      console.info(
+        '[SUCCESS] Wishlisted items sync date metafield defination created successfully! Data: ',
+      );
+      console.info(data);
+    } catch (e) {
+      this.logError(e, this.generateCustomerWishlistsSyncDateMetafield.name);
     }
   }
 
