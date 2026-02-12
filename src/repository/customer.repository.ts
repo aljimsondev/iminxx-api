@@ -341,6 +341,13 @@ export default class CustomerRepository {
             type: 'list.single_line_text_field',
             value: JSON.stringify(productIds),
           },
+          {
+            key: 'wishlists_sync_date',
+            namespace: 'custom',
+            ownerId: `gid://shopify/Customer/${customerId}`,
+            type: 'date_time',
+            value: new Date().toISOString(), // YYYY-MM-DD
+          },
         ],
       };
 
