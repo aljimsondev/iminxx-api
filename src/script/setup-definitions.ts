@@ -1,10 +1,8 @@
-import {
-  CollectionMetafieldDefinition,
-  CustomerMetafieldDefinition,
-  ProductMetafieldDefinition,
-  ShopMetafieldDefinition,
-} from './setup-metafield';
-import { MetaobjectDefinitionGenerator } from './setup-metaobject';
+import { CollectionMetafieldDefinition } from './metafield/collection';
+import { CustomerMetafieldDefinition } from './metafield/customer';
+import { ProductMetafieldDefinition } from './metafield/product';
+import { ShopMetafieldDefinition } from './metafield/shop';
+import { MetaobjectDefinitionGenerator } from './metaobject';
 
 (async () => {
   new MetaobjectDefinitionGenerator()
