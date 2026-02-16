@@ -67,3 +67,19 @@ export const GET_WISHLISTED_ITEMS = `query GetWishlistedItems($ownerId: ID!) {
     }
   }
 }`;
+
+export const SIGNUP_NEW_CUSTOMER_QUERY = `mutation customerCreate($input: CustomerCreateInput!) {
+  customerCreate(input: $input) {
+    customer {
+      id
+      firstName
+      lastName
+      acceptsMarketing
+    }
+    customerUserErrors {
+      field
+      message
+      code
+    }
+  }
+}`;

@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import * as customerService from '../service/customer.service';
 import {
   addressSchema,
+  newCustomerSchema,
   updateCustomerSchema,
   wishlistItemSchema,
   wishlistItemsSchema,
@@ -201,6 +202,46 @@ export const syncWishlistedItem = async (req: Request, res: Response) => {
     }
 
     return res.json({ success: success, data });
+  } catch (err: any) {
+    return res.status(500).json({
+      success: false,
+      error: err.message || err,
+    });
+  }
+};
+
+export const signup = async (req: Request, res: Response) => {
+  try {
+    const body = await req.body;
+
+    const {
+      success: parseSuccess,
+      data: customerInput,
+      error: validationErrors,
+    } = newCustomerSchema.safeParse(body);
+
+    if (!parseSuccess) {
+      const parsedErrors = JSON.parse(validationErrors as any) as any[];
+
+      const zodErrors = parsedErrors.map((zodError) => ({
+        message: zodError?.message,
+        code: zodError?.code,
+        path: zodError?.path,
+      }));
+
+      return res.json({
+        success: false,
+        errors: zodErrors,
+      });
+    }
+
+    const result = await customerService.signup(customerInput);
+
+    if (!result.success) {
+      return res.json({ success: false, errors: result?.error });
+    }
+
+    return res.json({ success: true, data: result?.data });
   } catch (err: any) {
     return res.status(500).json({
       success: false,

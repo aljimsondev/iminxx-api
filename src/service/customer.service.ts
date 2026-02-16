@@ -1,5 +1,5 @@
 import CustomerRepository from '../repository/customer.repository';
-import { Address, UpdateCustomerData } from '../types/customer';
+import { Address, NewCustomer, UpdateCustomerData } from '../types/customer';
 
 const customerRepo = new CustomerRepository();
 
@@ -60,3 +60,6 @@ export const syncWishlistedItem = async ({
     customerId,
     productIds,
   });
+
+export const signup = async (customer: NewCustomer) =>
+  await customerRepo.signup(customer);

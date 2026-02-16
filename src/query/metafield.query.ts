@@ -42,3 +42,17 @@ export const FIND_METAOBJECT_DEFINITION_BY_TYPE = `query FindMetaobjectByType($t
     }
   }
 }`;
+
+export const CREATE_METAOBJECT_QUERY = `mutation CreateMetaobject($metaobject: MetaobjectCreateInput!) {
+  metaobjectCreate(metaobject: $metaobject) {
+    metaobject {
+      handle
+      createdAt
+    }
+    userErrors {
+      field
+      message
+      code
+    }
+  }
+}`;

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import 'dotenv/config';
+
 import { SHOPIFY_GRAPHQL } from '../constants/constant';
 import {
   CREATE_METAFIELD_DEFINITION_QUERY,
@@ -53,6 +54,12 @@ type MetaobjectDefinitionType = {
   fieldDefinitions: MetaobjectDefinitionInputType[];
   name?: string;
   type: string;
+};
+
+type MetaobjectEntryInput = {
+  fields: { key: string; value: string }[];
+  type: string;
+  handle?: string;
 };
 
 export type MetaobjectDefinitionReturnType = {
@@ -126,8 +133,6 @@ export class MetafieldDefinition {
 
     return console.error(`[ERROR] ${message} Reason: ${e}`);
   }
-
-  // add additional metafield defination methods here
 }
 
 export class MetaobjectDefinition {
@@ -213,5 +218,37 @@ export class MetaobjectDefinition {
       return console.error(`[ERROR] (${fuctionName}) Reason: ${e.message}`);
 
     return console.error(`[ERROR] ${message} Reason: ${e}`);
+  }
+
+  // add additional metafield defination methods here
+  async addEntry<T = any>({ fields, type, handle }: MetaobjectEntryInput) {
+    if (!type) throw new Error('Metaobject type is required!');
+
+    let metaobject: MetaobjectEntryInput = {
+      type,
+      fields,
+    };
+
+    if (handle) {
+      metaobject.handle = handle;
+    }
+
+    const response = await axios.post(
+      SHOPIFY_GRAPHQL,
+      {
+        query: CREATE_METAOBJECT_DEFINITION_QUERY,
+        variables: {
+          metaobject: metaobject,
+        },
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Shopify-Access-Token': process.env.ADMIN_ACCESS_TOKEN,
+        },
+      },
+    );
+
+    console.log(response.data);
   }
 }

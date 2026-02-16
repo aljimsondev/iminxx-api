@@ -2,6 +2,7 @@ import express from 'express';
 import {
   getCustomerBithdate,
   setWishlistedItem,
+  signup,
   syncWishlistedItem,
   update,
   updateAddress,
@@ -18,4 +19,6 @@ router.post(
 router.get('/:customer_id/birthdate', getCustomerBithdate);
 router.post('/:customer_id/wishlist/set', setWishlistedItem);
 router.post('/:customer_id/wishlist', syncWishlistedItem);
+router.post('/signup', signup);
+
 export default router;
