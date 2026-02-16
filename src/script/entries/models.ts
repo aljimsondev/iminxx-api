@@ -1,9 +1,8 @@
-import models from '../../_test_/models.json';
 import { MetaobjectDefinition } from '../core';
 
 export class ModelEntries extends MetaobjectDefinition {
   async load() {
-    this.insert(models);
+    this.insert([]);
   }
   async insertTwo(models: any[]) {
     await this.addEntry({ fields: models.slice(0, 2), type: 'model' });
