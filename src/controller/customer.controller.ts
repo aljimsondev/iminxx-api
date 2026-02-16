@@ -231,14 +231,14 @@ export const signup = async (req: Request, res: Response) => {
 
       return res.json({
         success: false,
-        errors: zodErrors,
+        error: zodErrors,
       });
     }
 
     const result = await customerService.signup(customerInput);
 
     if (!result.success) {
-      return res.json({ success: false, errors: result?.error });
+      return res.json({ success: false, error: result?.error });
     }
 
     return res.json({ success: true, data: result?.data });
