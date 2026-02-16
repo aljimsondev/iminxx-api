@@ -5,15 +5,96 @@ import {
   GET_CUSTOMER_BIRTHDAY,
   GET_WISHLISTED_ITEMS,
   SET_WISHLISTED_ITEM_METAFIELD,
+  SIGNUP_NEW_CUSTOMER_QUERY,
   STOREFRONT_CUSTOMER_QUERY,
   UPDATE_CUSTOMER_ADDRESS_QUERY,
   UPDATE_CUSTOMER_QUERY,
 } from '../query/customer.query';
-import { Address, UpdateCustomerData } from '../types/customer';
+import { Address, NewCustomer, UpdateCustomerData } from '../types/customer';
 
 export default class CustomerRepository {
+  async signup(customer: NewCustomer) {
+    const storefrontApiEndpoint = process.env.STOREFRONT_API_ENDPOINT;
+
+    if (!storefrontApiEndpoint)
+      throw new Error('Storefront API endpoint is not configured!');
+
+    const { acceptsMarketing, email, firstName, lastName, password, birthday } =
+      customer;
+
+    const response = await axios.post(
+      storefrontApiEndpoint,
+      {
+        query: SIGNUP_NEW_CUSTOMER_QUERY,
+        variables: {
+          input: { acceptsMarketing, email, firstName, lastName, password },
+        },
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Shopify-Storefront-Access-Token':
+            process.env.STOREFRONT_ACCESS_TOKEN,
+        },
+      },
+    );
+
+    const data = response.data;
+
+    // check request errors
+    if (data?.errors) {
+      return {
+        success: false,
+        error: data?.errors,
+      };
+    }
+
+    const customerData = data?.data?.customerCreate;
+
+    // check shopify errors
+    if (customerData?.customerUserErrors?.length > 0)
+      return {
+        success: false,
+        error: customerData?.customerUserErrors,
+      };
+
+    if (!customerData?.customer)
+      return {
+        success: false,
+        error: 'Unable to create new customer!',
+      };
+
+    // in this case the user account is created
+    const newCustomer = customerData?.customer;
+
+    try {
+      // set the customer birthday metafield
+      const result = await this.update(newCustomer.id, {
+        metafields: {
+          namespace: 'facts',
+          key: 'birth_date',
+          value: birthday,
+        },
+      });
+
+      if (!result.success) throw result?.error;
+    } catch (e) {
+      console.warn('Failed on setting customer birthdate! Reason: ');
+      console.warn(e);
+    }
+
+    return {
+      success: true,
+      data: customerData?.customer,
+    };
+  }
+
   async update(customerId: string, payload: Partial<UpdateCustomerData>) {
     if (!customerId) throw new Error('customerId parameter is required!');
+
+    const id = customerId.includes('gid://shopify/Customer/')
+      ? customerId
+      : `gid://shopify/Customer/${customerId}`;
 
     const response = await axios.post(
       SHOPIFY_GRAPHQL,
@@ -22,7 +103,7 @@ export default class CustomerRepository {
         variables: {
           input: {
             ...payload,
-            id: `gid://shopify/Customer/${customerId}`,
+            id: id,
           },
         },
       },
