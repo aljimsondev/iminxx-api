@@ -63,3 +63,11 @@ export const syncWishlistedItem = async ({
 
 export const signup = async (customer: NewCustomer) =>
   await customerRepo.signup(customer);
+
+export const sendPasswordResetLink = async ({
+  email,
+  customerIpAddress,
+}: {
+  email: string;
+  customerIpAddress: string;
+}) => await customerRepo.sendPasswordResetLink({ customerIpAddress, email });
