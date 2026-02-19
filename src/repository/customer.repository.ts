@@ -4,6 +4,7 @@ import { SHOPIFY_GRAPHQL } from '../constants/constant';
 import {
   GET_CUSTOMER_BIRTHDAY,
   GET_WISHLISTED_ITEMS,
+  SEND_PASSWORD_RESET_LINK_QUERY,
   SET_WISHLISTED_ITEM_METAFIELD,
   SIGNUP_NEW_CUSTOMER_QUERY,
   STOREFRONT_CUSTOMER_QUERY,
@@ -464,6 +465,53 @@ export default class CustomerRepository {
       return {
         data: metafieldData?.metafields,
         success: true,
+      };
+    } catch (e: any) {
+      return {
+        success: false,
+        error: e?.message,
+      };
+    }
+  }
+
+  async sendPasswordResetLink({
+    email,
+    customerIpAddress,
+  }: {
+    email: string;
+    customerIpAddress: string;
+  }) {
+    try {
+      if (!email) throw new Error('Customer email is required!');
+      const response = await axios.post(
+        process.env.STOREFRONT_API_ENDPOINT!,
+        {
+          query: SEND_PASSWORD_RESET_LINK_QUERY,
+          variables: {
+            email: email,
+          },
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Shopify-Storefront-Access-Token':
+              process.env.STOREFRONT_ACCESS_TOKEN,
+            'Shopify-Storefront-Buyer-IP': customerIpAddress,
+          },
+        },
+      );
+
+      const errors = response.data?.data?.customerUserErrors;
+
+      if (errors) {
+        return { success: false, error: errors };
+      }
+
+      return {
+        success: true,
+        data: {
+          message: 'ok',
+        },
       };
     } catch (e: any) {
       return {

@@ -83,3 +83,13 @@ export const SIGNUP_NEW_CUSTOMER_QUERY = `mutation customerCreate($input: Custom
     }
   }
 }`;
+
+export const SEND_PASSWORD_RESET_LINK_QUERY = `mutation customerRecover($email: String!) {
+  customerRecover(email: $email) {
+    customerUserErrors {
+      code
+      field
+      message
+    }
+  }
+}`;

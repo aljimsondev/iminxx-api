@@ -249,3 +249,32 @@ export const signup = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const sendPasswordResetLink = async (req: Request, res: Response) => {
+  try {
+    const body = await req.body;
+    if (!body?.email) throw new Error('Customer email is required!');
+
+    const forwarded = req.headers['x-forwarded-for'];
+    const ip =
+      (Array.isArray(forwarded)
+        ? forwarded[0]
+        : forwarded?.split(',')[0]
+      )?.trim() ?? req.ip;
+
+    const { success, data, error } =
+      await customerService.sendPasswordResetLink({
+        email: body.email,
+        customerIpAddress: ip as string,
+      });
+
+    if (!success) return res.json({ success: false, error: error });
+
+    return res.json({ success: true, data: data });
+  } catch (err: any) {
+    return res.status(500).json({
+      success: false,
+      error: err.message || err,
+    });
+  }
+};
