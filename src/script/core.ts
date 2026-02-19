@@ -221,7 +221,7 @@ export class MetaobjectDefinition {
   }
 
   // add additional metafield defination methods here
-  async addEntry<T = any>({ fields, type, handle }: MetaobjectEntryInput) {
+  async addEntry({ fields, type, handle }: MetaobjectEntryInput) {
     if (!type) throw new Error('Metaobject type is required!');
 
     let metaobject: MetaobjectEntryInput = {
@@ -249,6 +249,16 @@ export class MetaobjectDefinition {
       },
     );
 
-    console.log(response.data);
+    console.log(JSON.stringify(response.data?.errors));
+
+    if (response?.data?.errors?.length > 0)
+      return {
+        success: false,
+        errors: response?.data?.errors,
+      };
+
+    return {
+      success: false,
+    };
   }
 }
