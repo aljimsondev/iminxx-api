@@ -100,7 +100,15 @@ export class ModelEntries extends MetaobjectDefinition {
 
       const metafieldInput = Object.entries(info).map(([key, val]) => ({
         key: key,
-        value: listFields.includes(key) && val ? JSON.stringify([val]) : val,
+        value:
+          listFields.includes(key) && val
+            ? JSON.stringify(
+                val
+                  .split(',')
+                  .map((v: string) => v.trim())
+                  .filter(Boolean),
+              )
+            : val,
       }));
 
       return metafieldInput;
