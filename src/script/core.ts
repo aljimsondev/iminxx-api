@@ -231,7 +231,7 @@ export class MetaobjectDefinition {
   }
 
   // add additional metafield defination methods here
-  async addEntry({ fields, type, handle }: MetaobjectEntryInput) {
+  async addEntry({ fields, type, handle, capabilities }: MetaobjectEntryInput) {
     if (!type) throw new Error('Metaobject type is required!');
 
     let metaobject: MetaobjectEntryInput = {
@@ -241,6 +241,10 @@ export class MetaobjectDefinition {
 
     if (handle) {
       metaobject.handle = handle;
+    }
+
+    if (capabilities) {
+      metaobject.capabilities = capabilities;
     }
 
     const response = await axios.post(
