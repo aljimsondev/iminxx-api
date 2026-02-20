@@ -30,11 +30,10 @@ export class Parser {
     const modelNames: string[] = [];
 
     // Extract model names from row 2 (columns D onwards)
-    for (let col = 4; col <= worksheet.columnCount; col++) {
+    for (let col = 4; col <= worksheet.columnCount - 1; col++) {
       const cell = worksheet.getCell(2, col);
-      if (cell.value) {
-        modelNames.push(String(cell.value));
-      }
+
+      modelNames.push(cell.value ? String(cell.value) : `Model-${col}`);
     }
 
     const imageMap = this.extractImages(worksheet);
