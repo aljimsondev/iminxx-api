@@ -62,6 +62,14 @@ type MetaobjectEntryInput = {
   fields: { key: string; value: string }[];
   type: string;
   handle?: string;
+  capabilities?: {
+    onlineStore?: {
+      templateSuffix?: string;
+    };
+    publishable?: {
+      status?: 'ACTIVE' | 'DRAFT';
+    };
+  };
 };
 
 export type MetaobjectDefinitionReturnType = {

@@ -155,6 +155,11 @@ export class ModelEntries extends MetaobjectDefinition {
         fields: metainput,
         type: this.type,
         handle: handle,
+        capabilities: {
+          publishable: {
+            status: 'ACTIVE',
+          },
+        },
       });
 
       if (!success) {
