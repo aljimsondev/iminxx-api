@@ -147,7 +147,7 @@ export class ModelEntries extends MetaobjectDefinition {
 
       const handle = this.createHandle(handleField.value);
 
-      console.log('[START] Started adding entry to models metaobject');
+      console.log('[BEGIN] Started adding entry to models metaobject');
 
       // return await this.checkEntryByHandle('models', metainput);
 
@@ -164,7 +164,7 @@ export class ModelEntries extends MetaobjectDefinition {
         console.log(JSON.stringify(metainput, null, 2));
         console.warn(errors);
       } else {
-        console.log('[SUCCESS] Added new entry to models metaobject!');
+        console.log('[FINISHED] Added new entry to models metaobject!');
         console.log(data);
       }
     }
