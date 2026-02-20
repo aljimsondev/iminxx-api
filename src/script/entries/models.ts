@@ -147,7 +147,9 @@ export class ModelEntries extends MetaobjectDefinition {
 
       const handle = this.createHandle(handleField.value);
 
-      console.log('[BEGIN] Started adding entry to models metaobject');
+      console.log(
+        `[BEGIN] Started adding entry for ${handle} to models metaobject`,
+      );
 
       // return await this.checkEntryByHandle('models', metainput);
 
@@ -164,12 +166,14 @@ export class ModelEntries extends MetaobjectDefinition {
 
       if (!success) {
         console.warn(
-          '[WARN] Failed to add new entry from models metaobject for ',
+          '[WARN] Failed to add new entry from models metaobject for ' + handle,
         );
         console.log(JSON.stringify(metainput, null, 2));
         console.warn(errors);
       } else {
-        console.log('[FINISHED] Added new entry to models metaobject!');
+        console.log(
+          `[FINISHED] Added new entry for ${handle} to models metaobject!`,
+        );
         console.log(data);
       }
     }
