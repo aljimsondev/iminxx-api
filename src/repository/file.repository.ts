@@ -123,10 +123,10 @@ export class FileRepository {
         success: true,
         data: createdFile as ImageReturnType,
       };
-    } catch (e) {
+    } catch (e: any) {
       return {
         success: false,
-        errors: e,
+        errors: e?.message || e,
       };
     }
   }

@@ -17,29 +17,6 @@ export class ModelEntries extends MetaobjectDefinition {
       console.error('[Error] Model upload error: ' + e);
     }
   }
-  async insertTwo(models: any[][]) {
-    const metafieldInputs = models.slice(0, 2);
-
-    Promise.all(
-      metafieldInputs.map(async (metainput) => {
-        console.log('[START] Started adding entry to models metaobject');
-        const { success, data, errors } = await this.addEntry({
-          fields: metainput,
-          type: 'models',
-        });
-
-        if (!success) {
-          console.warn(
-            '[WARN] Failed to add new entry from models metaobject!',
-          );
-          console.warn(errors);
-        } else {
-          console.log('[SUCCESS] Added new entry to models metaobject!');
-          console.log(data);
-        }
-      }),
-    );
-  }
 
   /**
    * Transform extracted model JSON into metafield key/value format
@@ -53,12 +30,17 @@ export class ModelEntries extends MetaobjectDefinition {
         let imgUid = '';
 
         if (base64) {
-          const { data } = await this.uploadModelImage(
+          const { data, errors } = await this.uploadModelImage(
             base64,
             model['Model Name'],
           );
           if (data) {
             imgUid = data.id;
+          } else {
+            console.error(
+              `[WARN] uploading image for ${model['Model Name']} failed!`,
+            );
+            console.warn(JSON.stringify(errors, null, 2));
           }
         }
 
@@ -131,32 +113,24 @@ export class ModelEntries extends MetaobjectDefinition {
   }
 
   async insert(models: any[]) {
-    const chunks = this.createChunks(models, 25);
+    for (const metainput of models) {
+      console.log('[START] Started adding entry to models metaobject');
+      const { success, data, errors } = await this.addEntry({
+        fields: metainput,
+        type: 'models',
+      });
 
-    await Promise.all(
-      chunks.map(async (chunk) => {
-        Promise.all(
-          chunk.map(async (metainput) => {
-            console.log('[START] Started adding entry to models metaobject');
-            const { success, data, errors } = await this.addEntry({
-              fields: metainput,
-              type: 'models',
-            });
-
-            if (!success) {
-              console.warn(
-                '[WARN] Failed to add new entry from models metaobject for ',
-              );
-              console.log(JSON.stringify(metainput, null, 2));
-              console.warn(errors);
-            } else {
-              console.log('[SUCCESS] Added new entry to models metaobject!');
-              console.log(data);
-            }
-          }),
+      if (!success) {
+        console.warn(
+          '[WARN] Failed to add new entry from models metaobject for ',
         );
-      }),
-    );
+        console.log(JSON.stringify(metainput, null, 2));
+        console.warn(errors);
+      } else {
+        console.log('[SUCCESS] Added new entry to models metaobject!');
+        console.log(data);
+      }
+    }
   }
 
   createChunks(models: any[], chunkSize: number) {
