@@ -140,15 +140,11 @@ export class FileRepository {
   }) {
     const { resourceUrl, url } = stagedTargets;
 
-    const response = await axios.put(url, file, {
+    await axios.put(url, file, {
       headers: {
         'Content-Type': file.type,
       },
     });
-
-    if (response.statusText === 'OK') {
-      console.log('File uploaded!');
-    }
 
     return resourceUrl;
   }
