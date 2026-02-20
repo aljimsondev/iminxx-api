@@ -7,6 +7,7 @@ import {
 } from '../query/file.query';
 import {
   FileCreateInput,
+  ImageReturnType,
   StagedMediaUploadTarget,
   StagedUploadInput,
   StagedUploadTargetGenerateUploadResource,
@@ -14,7 +15,7 @@ import {
 import { FileParser } from '../utils/parser/file-parser';
 
 export class FileRepository {
-  async stageUploadCreate(stageUploadInputs: StagedUploadInput[]) {
+  private async stageUploadCreate(stageUploadInputs: StagedUploadInput[]) {
     const response = await axios.post(
       SHOPIFY_GRAPHQL,
       {
@@ -85,11 +86,6 @@ export class FileRepository {
         };
       }
 
-      //   const buffer = Buffer.from(
-      //     base64.includes(',') ? base64.split(',')[1] : base64,
-      //     'base64',
-      //   );
-
       const file = new FileParser().base64ToFile({
         base64,
         filename,
@@ -125,7 +121,7 @@ export class FileRepository {
 
       return {
         success: true,
-        data: createdFile,
+        data: createdFile as ImageReturnType,
       };
     } catch (e) {
       return {
@@ -135,7 +131,7 @@ export class FileRepository {
     }
   }
 
-  async uploadFile({
+  private async uploadFile({
     file,
     stagedTargets,
   }: {
@@ -157,7 +153,7 @@ export class FileRepository {
     return resourceUrl;
   }
 
-  async createFile(files: FileCreateInput[]) {
+  private async createFile(files: FileCreateInput[]) {
     const response = await axios.post(
       SHOPIFY_GRAPHQL,
       {

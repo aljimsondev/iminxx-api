@@ -38,3 +38,14 @@ export type FileCreateInput = {
   filename?: string;
   originalSource: string;
 };
+
+export type ImageReturnType = {
+  id: string;
+  fileStatus: string;
+  alt: string;
+  createdAt: string;
+  image: {
+    width: number;
+    height: number;
+  };
+};

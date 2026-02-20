@@ -4,10 +4,12 @@ export const bustSizesOptions = [
   '32A/70A',
   '32B/70B',
   '32C/70C',
+  '32D/70D',
   '34A/75A',
   '34B/75B',
   '34C/75C',
   '34D/75D',
+  '34E/75E',
   '36A/80A',
   '36B/80B',
   '36C/80C',
@@ -93,12 +95,15 @@ export const bodysuitSizeOptions = [
 ];
 
 export const loungeTopSizeOptions = [
-  'XS (30A/B/C)',
-  'S (32A/B/C)',
-  'M (34A/B/C)',
-  'L (36A/B/C)',
-  'XL (38A/B/C)',
-  'XXL (40A/B/C)',
+  // 'XS (30A/B/C)',
+  // 'S (32A/B/C)',
+  // 'M (34A/B/C)',
+  // 'L (36A/B/C)',
+  // 'XL (38A/B/C)',
+  // 'XXL (40A/B/C)',
+  'M (UK4-8)',
+  'L (UK10-12)',
+  'XL (UK-14-16)',
 ];
 
 export const thermalTopSizeOptions = [
