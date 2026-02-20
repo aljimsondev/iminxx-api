@@ -5,6 +5,7 @@ import { SHOPIFY_GRAPHQL } from '../constants/constant';
 import {
   CREATE_METAFIELD_DEFINITION_QUERY,
   CREATE_METAOBJECT_DEFINITION_QUERY,
+  CREATE_METAOBJECT_QUERY,
   FIND_METAOBJECT_DEFINITION_BY_TYPE,
 } from '../query/metafield.query';
 
@@ -236,7 +237,7 @@ export class MetaobjectDefinition {
     const response = await axios.post(
       SHOPIFY_GRAPHQL,
       {
-        query: CREATE_METAOBJECT_DEFINITION_QUERY,
+        query: CREATE_METAOBJECT_QUERY,
         variables: {
           metaobject: metaobject,
         },
@@ -249,16 +250,24 @@ export class MetaobjectDefinition {
       },
     );
 
-    console.log(JSON.stringify(response.data?.errors));
-
     if (response?.data?.errors?.length > 0)
       return {
         success: false,
         errors: response?.data?.errors,
       };
 
+    const metaobjectCreate = response?.data?.data?.metaobjectCreate;
+
+    if (metaobjectCreate?.userErrors?.length > 0) {
+      return {
+        success: false,
+        errors: metaobjectCreate.userErrors,
+      };
+    }
+
     return {
-      success: false,
+      success: true,
+      data: metaobjectCreate?.metaobject,
     };
   }
 }

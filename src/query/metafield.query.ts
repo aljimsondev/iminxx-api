@@ -47,7 +47,7 @@ export const CREATE_METAOBJECT_QUERY = `mutation CreateMetaobject($metaobject: M
   metaobjectCreate(metaobject: $metaobject) {
     metaobject {
       handle
-      createdAt
+      id
     }
     userErrors {
       field
