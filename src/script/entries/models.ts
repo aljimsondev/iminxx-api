@@ -6,6 +6,12 @@ const fileRepo = new FileRepository();
 export class ModelEntries extends MetaobjectDefinition {
   type = 'models'; // metaobject type
 
+  /**
+   * Load models data that is extracted in the excel via Parser utility
+   *
+   * NOTE: models must be returned using Parser utility to be more efficient since transformToMetafieldKeyValueFormat is based on the JSON data pulled from Parser utility
+   * @param models - array of models details extracted in the Parser utility
+   */
   async load(models: Record<string, any>[]) {
     try {
       console.log('[START] Model entries started uploading...');
