@@ -4,6 +4,8 @@ import { MetaobjectDefinition } from '../core';
 const fileRepo = new FileRepository();
 
 export class ModelEntries extends MetaobjectDefinition {
+  type = 'models'; // metaobject type
+
   async load(models: Record<string, any>[]) {
     try {
       console.log('[START] Model entries started uploading...');
@@ -33,7 +35,7 @@ export class ModelEntries extends MetaobjectDefinition {
         const handle = this.createHandle(model['Model Name']);
 
         // check if its already existed
-        const { data } = await this.getEntryByHandle('models', handle);
+        const { data } = await this.getEntryByHandle(this.type, handle);
 
         if (data) {
           console.log(
@@ -145,7 +147,7 @@ export class ModelEntries extends MetaobjectDefinition {
 
       const { success, data, errors } = await this.addEntry({
         fields: metainput,
-        type: 'models',
+        type: this.type,
         handle: handle,
       });
 
