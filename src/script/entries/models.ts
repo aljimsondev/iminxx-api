@@ -6,10 +6,10 @@ const fileRepo = new FileRepository();
 export class ModelEntries extends MetaobjectDefinition {
   async load(models: Record<string, any>[]) {
     try {
+      console.log('[START] Model entries started uploading...');
       const transformModelData =
         await this.transformToMetafieldKeyValueFormat(models);
 
-      console.log('[START] Model entries started uploading...');
       this.insert(transformModelData).then(() => {
         console.log('[END] Model entries loaded successfully!');
       });
@@ -27,7 +27,20 @@ export class ModelEntries extends MetaobjectDefinition {
     const objectKeyValArray = await Promise.all(
       models.map(async (model) => {
         const base64 = model['thumbnail'];
+
         let imgUid = '';
+
+        const handle = this.createHandle(model['Model Name']);
+
+        // check if its already existed
+        const { data } = await this.getEntryByHandle('models', handle);
+
+        if (data) {
+          console.log(
+            `[INFO] Entry ${handle} already exists, setting null value for exclusion!`,
+          );
+          return null;
+        }
 
         if (base64) {
           const { data, errors } = await this.uploadModelImage(
@@ -69,7 +82,10 @@ export class ModelEntries extends MetaobjectDefinition {
       }),
     );
 
-    return objectKeyValArray.map((info) => {
+    // filter entries according to non-existent entries, existent entries have value of null as set above
+    const newEntries = objectKeyValArray.filter((val) => val !== null);
+
+    return newEntries.map((info) => {
       // type of lists definition must be added here to prevent errors
       const listFields = [
         'im_in_bra_size',
@@ -112,12 +128,25 @@ export class ModelEntries extends MetaobjectDefinition {
     };
   }
 
-  async insert(models: any[]) {
+  async insert(models: any[][]) {
     for (const metainput of models) {
+      const handleField = metainput.find((field) => field.key === 'label');
+
+      if (!handleField) {
+        console.warn('[WARN] Skipping entry — no label/handle found');
+        continue;
+      }
+
+      const handle = this.createHandle(handleField.value);
+
       console.log('[START] Started adding entry to models metaobject');
+
+      // return await this.checkEntryByHandle('models', metainput);
+
       const { success, data, errors } = await this.addEntry({
         fields: metainput,
         type: 'models',
+        handle: handle,
       });
 
       if (!success) {
@@ -131,6 +160,14 @@ export class ModelEntries extends MetaobjectDefinition {
         console.log(data);
       }
     }
+  }
+
+  createHandle(modelName: string) {
+    return modelName
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '') // remove special characters except spaces and -
+      .trim()
+      .replace(/\s+/g, '-'); // replace spaces with -
   }
 
   createChunks(models: any[], chunkSize: number) {

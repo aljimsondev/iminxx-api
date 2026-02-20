@@ -7,6 +7,7 @@ import {
   CREATE_METAOBJECT_DEFINITION_QUERY,
   CREATE_METAOBJECT_QUERY,
   FIND_METAOBJECT_DEFINITION_BY_TYPE,
+  GET_METAOBJECT_ENTRY_BY_HANDLE_QUERY,
 } from '../query/metafield.query';
 
 export enum OWNER_TYPE {
@@ -268,6 +269,41 @@ export class MetaobjectDefinition {
     return {
       success: true,
       data: metaobjectCreate?.metaobject,
+    };
+  }
+
+  async getEntryByHandle(type: string, handle: string) {
+    if (!type) throw new Error('Metaobject type is required!');
+    if (!handle) throw new Error('Metaobject handle is required!');
+
+    const response = await axios.post(
+      SHOPIFY_GRAPHQL,
+      {
+        query: GET_METAOBJECT_ENTRY_BY_HANDLE_QUERY,
+        variables: {
+          type: type,
+          query: `handle:${handle}`,
+        },
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Shopify-Access-Token': process.env.ADMIN_ACCESS_TOKEN,
+        },
+      },
+    );
+
+    if (response?.data?.errors?.length > 0)
+      return {
+        success: false,
+        errors: response?.data?.errors,
+      };
+
+    const metaobject = response?.data?.data?.metaobjects?.nodes?.[0];
+
+    return {
+      success: true,
+      data: metaobject,
     };
   }
 }
