@@ -57,8 +57,7 @@ export const CREATE_METAOBJECT_QUERY = `mutation CreateMetaobject($metaobject: M
   }
 }`;
 
-export const GET_METAOBJECT_ENTRY_BY_HANDLE_QUERY = `
-  query GetMetaobjectsByHandle($type: String!, $query: String!) {
+export const GET_METAOBJECT_ENTRY_BY_QUERY = `query GetMetaobjectsByQuery($type: String!, $query: String!) {
     metaobjects(type: $type, first: 1, query: $query) {
       nodes {
         handle
@@ -66,5 +65,21 @@ export const GET_METAOBJECT_ENTRY_BY_HANDLE_QUERY = `
         type
       }
     }
+}`;
+
+export const SET_METAFIELD_QUERY = `mutation MetafieldsSet($metafields: [MetafieldsSetInput!]!) {
+  metafieldsSet(metafields: $metafields) {
+    metafields {
+      key
+      namespace
+      value
+      createdAt
+      updatedAt
+    }
+    userErrors {
+      field
+      message
+      code
+    }
   }
-`;
+}`;

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import 'dotenv/config';
 import { SHOPIFY_GRAPHQL } from '../constants/constant';
 import { GET_PRODUCTS_BY_SKU_QUERY } from '../query/product.query';
 
@@ -59,8 +60,6 @@ export default class ProductRepository {
       data: results,
     };
   }
-
-  assignModelsMetafield({ models, sku }: { sku: string; models: string[] }) {}
 }
 
 function extractoptions(options: any) {

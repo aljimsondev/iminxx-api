@@ -1,5 +1,12 @@
 import ExcelJS from 'exceljs';
 
+export type ProductModelType = {
+  productSKU: number | null;
+  productName: string;
+  productType: string;
+  models: string[];
+};
+
 export class Parser {
   private media = [];
 
@@ -11,8 +18,6 @@ export class Parser {
     const models = this.extractModels(workbook);
     const productModelsMapping = this.extractProductModelsMapping(workbook);
 
-    this.media = (workbook as any).media;
-
     return { models, productModelsMapping };
   }
 
@@ -20,6 +25,8 @@ export class Parser {
     const worksheet = workbook.getWorksheet('MODEL SIZE');
 
     if (!worksheet) throw new Error('Unable to parse worksheet!');
+
+    this.media = (workbook as any).media;
 
     const json = this.modelSheetToJson(worksheet);
 
@@ -99,12 +106,12 @@ export class Parser {
     return imageMap;
   }
 
-  extractProductModelsMapping(workbook: ExcelJS.Workbook) {
+  extractProductModelsMapping(workbook: ExcelJS.Workbook): ProductModelType[] {
     const worksheet = workbook.getWorksheet('MODEL SIZE TAGGING');
     if (!worksheet)
       throw new Error('Unable to parse worksheet for product models mapping!');
 
-    const json: Array<Record<string, any>> = [];
+    const json: ProductModelType[] = [];
 
     // Start from row 2 to skip the header row
     worksheet.eachRow((row, rowNumber) => {
@@ -128,10 +135,10 @@ export class Parser {
         : [];
 
       json.push({
-        skuModel: skuModel ? Number(skuModel) : null,
+        productSKU: skuModel ? Number(skuModel) : null,
         productName: productName ? String(productName).trim() : '',
         productType: productType ? String(productType).trim() : '',
-        humanModels,
+        models: humanModels,
       });
     });
 

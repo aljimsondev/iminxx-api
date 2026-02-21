@@ -30,7 +30,10 @@ export const GET_PRODUCTS_BY_SKU_QUERY = `query GetProductsBySKU($query: String!
     nodes {
       id
       title
-      category
+      category {
+        name
+        id
+      }
       productType
     }
   }

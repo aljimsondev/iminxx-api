@@ -1,6 +1,8 @@
 import path from 'path';
-import { Parser } from '../utils/parser/xlsx-parser';
+
+import { Parser, ProductModelType } from '../utils/parser/xlsx-parser';
 import { ModelEntries } from './entries/models';
+// import { ModelEntries } from './entries/models';
 
 (async () => {
   const filePath = path.join(
@@ -9,9 +11,26 @@ import { ModelEntries } from './entries/models';
     'IMINXX FULL Products.xlsx',
   );
 
-  const { models } = await new Parser().parse(filePath);
+  const { productModelsMapping, models } = await new Parser().parse(filePath);
 
-  await new ModelEntries().load(models);
-  // after the models are loaded assign models  their respective product mapping
-  // await new ProductRepository().assignModelsMetafield()
+  const modelEntries = new ModelEntries();
+  const modelTest: ProductModelType[] = [
+    {
+      productSKU: 12020188,
+      models: ['Karen'],
+      productName: '5th Gen 100% Non-Slip Strapless Bra',
+      productType: 'bra',
+    },
+  ];
+
+  // load the models first to create their respective metaobject reference before assigning them to products
+  new ModelEntries()
+    .load(models)
+    .then(async () => {
+      // once the task is finished we now assign models to products mapping
+      await modelEntries.assignToProducts(productModelsMapping);
+    })
+    .catch((e) => {
+      console.log('Loading entries error: ' + e?.message || e);
+    });
 })();

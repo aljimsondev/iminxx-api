@@ -7,7 +7,8 @@ import {
   CREATE_METAOBJECT_DEFINITION_QUERY,
   CREATE_METAOBJECT_QUERY,
   FIND_METAOBJECT_DEFINITION_BY_TYPE,
-  GET_METAOBJECT_ENTRY_BY_HANDLE_QUERY,
+  GET_METAOBJECT_ENTRY_BY_QUERY,
+  SET_METAFIELD_QUERY,
 } from '../query/metafield.query';
 
 export enum OWNER_TYPE {
@@ -90,6 +91,15 @@ export type MetaobjectDefinitionReturnType = {
   }[];
 };
 
+export type MetafieldsSetInput = {
+  compareDigest?: string;
+  key: string;
+  namespace?: string;
+  ownerId: string;
+  type?: string;
+  value: string;
+};
+
 export class MetafieldDefinition {
   constructor() {}
 
@@ -142,6 +152,39 @@ export class MetafieldDefinition {
       return console.error(`[ERROR] (${fuctionName}): Reason: ${e.message}`);
 
     return console.error(`[ERROR] ${message} Reason: ${e}`);
+  }
+
+  async set(metafielInputs: MetafieldsSetInput[]) {
+    const response = await axios.post(
+      SHOPIFY_GRAPHQL,
+      {
+        query: SET_METAFIELD_QUERY,
+        variables: {
+          metafields: metafielInputs,
+        },
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Shopify-Access-Token': process.env.ADMIN_ACCESS_TOKEN,
+        },
+      },
+    );
+
+    if (response?.data?.errors) throw response.data.errors;
+
+    const data = response?.data?.data?.metafieldsSet;
+
+    if (data?.userErrors?.length > 0)
+      return {
+        success: false,
+        errors: data.userErrors,
+      };
+
+    return {
+      success: true,
+      data: data?.metafields,
+    };
   }
 }
 
@@ -291,7 +334,7 @@ export class MetaobjectDefinition {
     const response = await axios.post(
       SHOPIFY_GRAPHQL,
       {
-        query: GET_METAOBJECT_ENTRY_BY_HANDLE_QUERY,
+        query: GET_METAOBJECT_ENTRY_BY_QUERY,
         variables: {
           type: type,
           query: `handle:${handle}`,
@@ -316,6 +359,44 @@ export class MetaobjectDefinition {
     return {
       success: true,
       data: metaobject,
+    };
+  }
+
+  async findByDisplayName({
+    displayName,
+    type,
+  }: {
+    type: string;
+    displayName: string;
+  }) {
+    const response = await axios.post(
+      SHOPIFY_GRAPHQL,
+      {
+        query: GET_METAOBJECT_ENTRY_BY_QUERY,
+        variables: {
+          type: type,
+          query: `display_name:${displayName}`,
+        },
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Shopify-Access-Token': process.env.ADMIN_ACCESS_TOKEN,
+        },
+      },
+    );
+
+    if (response?.data?.errors?.length > 0)
+      return {
+        success: false,
+        errors: response?.data?.errors,
+      };
+
+    const metaobjects = response?.data?.data?.metaobjects?.nodes;
+
+    return {
+      success: true,
+      data: metaobjects,
     };
   }
 }

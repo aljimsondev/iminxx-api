@@ -1,10 +1,14 @@
 import { FileRepository } from '../../repository/file.repository';
-import { MetaobjectDefinition } from '../core';
+import ProductRepository from '../../repository/product.repository';
+import { ProductModelType } from '../../utils/parser/xlsx-parser';
+import { MetafieldDefinition, MetaobjectDefinition } from '../core';
 
 const fileRepo = new FileRepository();
+const productRepo = new ProductRepository();
 
 export class ModelEntries extends MetaobjectDefinition {
   type = 'models'; // metaobject type
+  metafield = new MetafieldDefinition();
 
   /**
    * Load models data that is extracted in the excel via Parser utility
@@ -18,11 +22,12 @@ export class ModelEntries extends MetaobjectDefinition {
       const transformModelData =
         await this.transformToMetafieldKeyValueFormat(models);
 
-      this.insert(transformModelData).then(() => {
+      await this.insert(transformModelData).then(() => {
         console.log('[END] Model entries loaded successfully!');
       });
-    } catch (e) {
-      console.error('[Error] Model upload error: ' + e);
+    } catch (e: any) {
+      console.error('[Error] Model upload error: ' + e?.message);
+      throw e;
     }
   }
 
@@ -31,7 +36,7 @@ export class ModelEntries extends MetaobjectDefinition {
    * @param models
    * @returns
    */
-  async transformToMetafieldKeyValueFormat(models: any[]) {
+  private async transformToMetafieldKeyValueFormat(models: any[]) {
     const objectKeyValArray = await Promise.all(
       models.map(async (model) => {
         const base64 = model['thumbnail'];
@@ -121,7 +126,7 @@ export class ModelEntries extends MetaobjectDefinition {
     });
   }
 
-  async uploadModelImage(base64: string, filename: string) {
+  private async uploadModelImage(base64: string, filename: string) {
     const { success, data, errors } = await fileRepo.uploadBase64({
       base64,
       filename,
@@ -136,7 +141,7 @@ export class ModelEntries extends MetaobjectDefinition {
     };
   }
 
-  async insert(models: any[][]) {
+  private async insert(models: any[][]) {
     for (const metainput of models) {
       const handleField = metainput.find((field) => field.key === 'label');
 
@@ -179,7 +184,7 @@ export class ModelEntries extends MetaobjectDefinition {
     }
   }
 
-  createHandle(modelName: string) {
+  private createHandle(modelName: string) {
     return modelName
       .toLowerCase()
       .replace(/[^a-z0-9\s-]/g, '') // remove special characters except spaces and -
@@ -187,7 +192,7 @@ export class ModelEntries extends MetaobjectDefinition {
       .replace(/\s+/g, '-'); // replace spaces with -
   }
 
-  createChunks(models: any[], chunkSize: number) {
+  private createChunks(models: any[], chunkSize: number) {
     let chunks = [];
 
     for (let i = 0; i < models.length; i += chunkSize) {
@@ -195,5 +200,101 @@ export class ModelEntries extends MetaobjectDefinition {
     }
 
     return chunks;
+  }
+
+  async assignToProducts(products: ProductModelType[]) {
+    console.log('[START] Assigning models to products started!');
+    for (const product of products) {
+      // if no sku found skip it
+      if (!product.productSKU) continue;
+      console.info(
+        '[BEGIN] Assigning models to product SKU: ' + product.productSKU,
+      );
+
+      const result = await this.assign({
+        models: product.models,
+        productName: product.productName,
+        productSKU: product.productSKU.toString(),
+      });
+
+      if (result?.success) {
+        console.info(
+          '[SUCCESS] Successfully assigned product models for product SKU: ' +
+            product.productSKU,
+        );
+        console.log(JSON.stringify(result?.data, null, 2));
+      } else {
+        if (result?.errors) {
+          console.info(
+            '[FAILED] Failed to assigned product models for product SKU: ' +
+              product.productSKU,
+          );
+          console.error('Reason: ');
+          console.error(JSON.stringify(result?.errors, null, 2));
+        }
+      }
+    }
+    console.log('[FINISHED] Assigning  models to products task finished!');
+  }
+
+  private async assign({
+    models,
+    productSKU,
+    productName,
+  }: {
+    productSKU: string;
+    models: string[];
+    productName: string;
+  }) {
+    if (!productSKU) throw new Error('Product SKU is required!');
+    if (!productName) throw new Error('Product name is required!');
+
+    const { data, success, error } =
+      await productRepo.getProductBySKU(productSKU);
+
+    if (success) {
+      // match product name
+      const exactProduct = data.find(
+        (product: any) =>
+          product.title.toLowerCase() === productName.toLowerCase(),
+      );
+
+      if (!exactProduct)
+        return console.warn(
+          '[WARN] No exact match for ' + productName + '. Skipping...',
+        );
+
+      const modelsReference = await Promise.all(
+        models.map(async (model) => {
+          const results = await this.findByDisplayName({
+            type: this.type,
+            displayName: model,
+          });
+
+          if (results.data?.length > 0) return results.data[0]; // return first matched metaobject
+
+          return null;
+        }),
+      );
+
+      const filterModels = modelsReference.filter((model) => model !== null);
+
+      // NOTE: Metafields allows maximum of 25 per transaction so in case that there are multiple models in a product which is impossible in the current use-case, you can use createChunks method
+      const result = await this.metafield.set([
+        {
+          type: 'list.metaobject_reference',
+          ownerId: exactProduct.id,
+          namespace: 'custom',
+          key: 'product_models',
+          value: JSON.stringify(filterModels.map((model) => model.id)),
+        },
+      ]);
+
+      return result;
+    }
+    return {
+      success: false,
+      errors: error,
+    };
   }
 }
