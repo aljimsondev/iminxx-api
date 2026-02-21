@@ -30,7 +30,10 @@ import { ModelEntries } from './entries/models';
     .load(models)
     .then(async () => {
       // once the task is finished we now assign models to products mapping
-      await modelEntries.assignToProducts(productModelsMapping);
+      await modelEntries.assignToProducts(productModelsMapping, {
+        // for production you may want to add a prefix to this SKU's you can set it in here: ex, BIG. This will adjust the product mapping sku to BIG-0194554 for example
+        skuPrefix: undefined,
+      });
     })
     .catch((e) => {
       console.log('Loading entries error: ' + e?.message || e);

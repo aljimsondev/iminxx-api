@@ -202,7 +202,14 @@ export class ModelEntries extends MetaobjectDefinition {
     return chunks;
   }
 
-  async assignToProducts(products: ProductModelType[]) {
+  async assignToProducts(
+    products: ProductModelType[],
+    options: {
+      skuPrefix?: string;
+    } = {},
+  ) {
+    const { skuPrefix } = options;
+
     console.log('[START] Assigning models to products started!');
     for (const product of products) {
       // if no sku found skip it
@@ -211,10 +218,18 @@ export class ModelEntries extends MetaobjectDefinition {
         '[BEGIN] Assigning models to product SKU: ' + product.productSKU,
       );
 
+      let sku = product.productSKU.toString();
+
+      // if theres a refix
+      if (skuPrefix) {
+        const cleanprefix = skuPrefix.replace(/[^a-zA-Z0-9]/g, ''); // removes any special characters in case accidentally passed "-" character
+        sku = `${cleanprefix}-${product.productSKU}`;
+      }
+
       const result = await this.assign({
         models: product.models,
         productName: product.productName,
-        productSKU: product.productSKU.toString(),
+        productSKU: sku,
       });
 
       if (result?.success) {
