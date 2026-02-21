@@ -14,6 +14,8 @@ import { ModelEntries } from './entries/models';
   const { productModelsMapping, models } = await new Parser().parse(filePath);
 
   const modelEntries = new ModelEntries();
+
+  // For Testing you can passed this array as parameter in assignToProducts method to visualize the adding of metafield in product models
   const modelTest: ProductModelType[] = [
     {
       productSKU: 12020188,
