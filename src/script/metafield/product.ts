@@ -19,12 +19,12 @@ export class ProductMetafieldDefinition extends MetafieldDefinition {
   }: {
     modelMetaobject?: MetaobjectDefinitionReturnType['data'];
   }) {
-    console.info('[START] Starting generating product metafield defination...');
+    console.info('[START] Starting generating product metafield definition...');
 
     Promise.all([
       this.generateModelsMetafieldDefinition(modelMetaobject),
     ]).finally(() => {
-      console.info('[END] Finished generating product metafield definations!');
+      console.info('[END] Finished generating product metafield definitions!');
     });
   }
 
@@ -37,7 +37,7 @@ export class ProductMetafieldDefinition extends MetafieldDefinition {
           'Unable to get metaobject ID, aborting models metafield generation!',
         );
 
-      console.info('[BEGIN] Generating product models metafield defination...');
+      console.info('[BEGIN] Generating product models metafield definition...');
 
       const { success, data, errors } = await this.create({
         name: 'Product Models',
@@ -58,7 +58,7 @@ export class ProductMetafieldDefinition extends MetafieldDefinition {
 
       if (!success) throw errors;
       console.info(
-        '[SUCCESS] Feature: Product models metafield defination created successfully! Data: ',
+        '[SUCCESS] Feature: Product models metafield definition created successfully! Data: ',
       );
       console.info(data);
 

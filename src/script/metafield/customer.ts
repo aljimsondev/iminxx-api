@@ -7,21 +7,21 @@ export class CustomerMetafieldDefinition extends MetafieldDefinition {
 
   async generate() {
     console.info(
-      '[START] Starting generating customer metafield defination...',
+      '[START] Starting generating customer metafield definition...',
     );
     Promise.all([
       this.generateCustomerWishlistedItemsMetafield(),
       this.generateCustomerWishlistsSyncDateMetafield(),
       this.generateCustomerBirthdateMetafield(),
     ]).finally(() => {
-      console.info('[END] Finished generating customer metafield definations!');
+      console.info('[END] Finished generating customer metafield definitions!');
     });
   }
 
   async generateCustomerWishlistedItemsMetafield() {
     try {
       console.info(
-        '[BEGIN] Generating customer wishlisted items metafield defination...',
+        '[BEGIN] Generating customer wishlisted items metafield definition...',
       );
 
       const { success, data, errors } = await this.create({
@@ -37,7 +37,7 @@ export class CustomerMetafieldDefinition extends MetafieldDefinition {
       if (!success) throw errors;
 
       console.info(
-        '[SUCCESS] Wishlisted items metafield defination created successfully! Data: ',
+        '[SUCCESS] Wishlisted items metafield definition created successfully! Data: ',
       );
       console.info(data);
     } catch (e) {
@@ -48,7 +48,7 @@ export class CustomerMetafieldDefinition extends MetafieldDefinition {
   async generateCustomerWishlistsSyncDateMetafield() {
     try {
       console.info(
-        '[BEGIN] Generating customer wishlisted items sync date metafield defination...',
+        '[BEGIN] Generating customer wishlisted items sync date metafield definition...',
       );
 
       const { success, data, errors } = await this.create({
@@ -63,7 +63,7 @@ export class CustomerMetafieldDefinition extends MetafieldDefinition {
       if (!success) throw errors;
 
       console.info(
-        '[SUCCESS] Wishlisted items sync date metafield defination created successfully! Data: ',
+        '[SUCCESS] Wishlisted items sync date metafield definition created successfully! Data: ',
       );
       console.info(data);
     } catch (e) {
@@ -74,7 +74,7 @@ export class CustomerMetafieldDefinition extends MetafieldDefinition {
   async generateCustomerBirthdateMetafield() {
     try {
       console.info(
-        '[BEGIN] Generating customer birthdate metafield defination...',
+        '[BEGIN] Generating customer birthdate metafield definition...',
       );
 
       const { success, data, errors } = await this.create({
@@ -90,7 +90,7 @@ export class CustomerMetafieldDefinition extends MetafieldDefinition {
       if (!success) throw errors;
 
       console.info(
-        '[SUCCESS] Customer birthdate metafield defination created successfully! Data: ',
+        '[SUCCESS] Customer birthdate metafield definition created successfully! Data: ',
       );
       console.info(data);
     } catch (e) {

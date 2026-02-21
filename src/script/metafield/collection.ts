@@ -7,7 +7,7 @@ export class CollectionMetafieldDefinition extends MetafieldDefinition {
 
   async generate() {
     console.info(
-      '[START] Starting generating collection metafield defination...',
+      '[START] Starting generating collection metafield definition...',
     );
 
     Promise.all([
@@ -15,7 +15,7 @@ export class CollectionMetafieldDefinition extends MetafieldDefinition {
       this.generateCreateFitNavigationScreenSelectorMapping(),
     ]).finally(() => {
       console.info(
-        '[END] Finished generating collection metafield definations!',
+        '[END] Finished generating collection metafield definitions!',
       );
     });
   }
@@ -23,7 +23,7 @@ export class CollectionMetafieldDefinition extends MetafieldDefinition {
   async generateCreateFitProductFilterConfiguration() {
     try {
       console.info(
-        '[BEGIN] Generating Navigation Product Filter Configuration metafield defination...',
+        '[BEGIN] Generating Navigation Product Filter Configuration metafield definition...',
       );
 
       const { success, data, errors } = await this.create({
@@ -40,7 +40,7 @@ export class CollectionMetafieldDefinition extends MetafieldDefinition {
       if (!success) throw errors;
 
       console.info(
-        '[SUCCESS] Feature: Create/Find Fit Navigation Product Filter Configuration metafield defination created successfully! Data: ',
+        '[SUCCESS] Feature: Create/Find Fit Navigation Product Filter Configuration metafield definition created successfully! Data: ',
       );
       console.info(data);
     } catch (e) {
@@ -51,7 +51,7 @@ export class CollectionMetafieldDefinition extends MetafieldDefinition {
   async generateCreateFitNavigationScreenSelectorMapping() {
     try {
       console.info(
-        '[BEGIN] Generating navigation screen selector mapping metafield defination...',
+        '[BEGIN] Generating navigation screen selector mapping metafield definition...',
       );
 
       const { success, data, errors } = await this.create({
@@ -68,7 +68,7 @@ export class CollectionMetafieldDefinition extends MetafieldDefinition {
       if (!success) throw errors;
 
       console.info(
-        '[SUCCESS] Feature: Create/Find Fit navigation screen selector mapping metafield defination created successfully! Data: ',
+        '[SUCCESS] Feature: Create/Find Fit navigation screen selector mapping metafield definition created successfully! Data: ',
       );
       +JSON.stringify(data);
     } catch (e) {

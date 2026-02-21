@@ -273,7 +273,7 @@ export class MetaobjectDefinition {
     return console.error(`[ERROR] ${message} Reason: ${e}`);
   }
 
-  // add additional metafield defination methods here
+  // add additional metafield definition methods here
   async addEntry({ fields, type, handle, capabilities }: MetaobjectEntryInput) {
     if (!type) throw new Error('Metaobject type is required!');
 

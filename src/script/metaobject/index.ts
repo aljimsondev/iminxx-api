@@ -27,7 +27,7 @@ export class MetaobjectDefinitionGenerator extends MetaobjectDefinition {
   async generateCustomDiscountDetailsMetaobject() {
     try {
       console.info(
-        '[BEGIN] Generating custom discount details metaobject defination...',
+        '[BEGIN] Generating custom discount details metaobject definition...',
       );
 
       const type = 'discount';
@@ -62,7 +62,7 @@ export class MetaobjectDefinitionGenerator extends MetaobjectDefinition {
       }
 
       console.info(
-        '[SUCCESS] Feature: Custom discount details metaobject defination created successfully! Data: ',
+        '[SUCCESS] Feature: Custom discount details metaobject definition created successfully! Data: ',
       );
       console.info(data);
       return data;
@@ -74,7 +74,7 @@ export class MetaobjectDefinitionGenerator extends MetaobjectDefinition {
 
   async generateModelMetaobject() {
     try {
-      console.info('[BEGIN] Generating models metaobject defination...');
+      console.info('[BEGIN] Generating models metaobject definition...');
       const type = 'models';
       const { success, data, errors } = await this.create({
         type: type,
@@ -104,7 +104,7 @@ export class MetaobjectDefinitionGenerator extends MetaobjectDefinition {
       }
 
       console.info(
-        '[SUCCESS] Feature: Models metaobject defination created successfully! Data: ',
+        '[SUCCESS] Feature: Models metaobject definition created successfully! Data: ',
       );
 
       return data;

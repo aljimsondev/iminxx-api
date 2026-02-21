@@ -14,14 +14,14 @@ export class ShopMetafieldDefinition extends MetafieldDefinition {
   }: {
     promoDetailsMetaobject: MetaobjectDefinitionReturnType['data'] | undefined;
   }) {
-    console.info('[START] Starting generating shop metafield defination...');
+    console.info('[START] Starting generating shop metafield definition...');
 
     Promise.all([
       this.generateCustomPromoDetailsMetafieldDefinition(
         promoDetailsMetaobject,
       ),
     ]).finally(() => {
-      console.info('[END] Finished generating shop metafield definations!');
+      console.info('[END] Finished generating shop metafield definitions!');
     });
   }
 
@@ -35,7 +35,7 @@ export class ShopMetafieldDefinition extends MetafieldDefinition {
         );
 
       console.info(
-        '[BEGIN] Generating custom discount details metafield defination...',
+        '[BEGIN] Generating custom discount details metafield definition...',
       );
       const { success, data, errors } = await this.create({
         name: 'Feature: Custom Discount Details',
@@ -56,7 +56,7 @@ export class ShopMetafieldDefinition extends MetafieldDefinition {
 
       if (!success) throw errors;
       console.info(
-        '[SUCCESS] Feature: Custom discount details metafield defination created successfully! Data: ',
+        '[SUCCESS] Feature: Custom discount details metafield definition created successfully! Data: ',
       );
       console.info(data);
 
