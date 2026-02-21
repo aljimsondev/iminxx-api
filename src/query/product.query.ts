@@ -24,3 +24,14 @@ export const GET_PRODUCT_BUNDLE_DETAILS_QUERY = `query GetProductBundleDetails($
       }
     }
   }`;
+
+export const GET_PRODUCTS_BY_SKU_QUERY = `query GetProductsBySKU($query: String!) {
+  products(first: 10, query: $query) {
+    nodes {
+      id
+      title
+      category
+      productType
+    }
+  }
+}`;

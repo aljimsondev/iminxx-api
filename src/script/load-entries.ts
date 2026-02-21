@@ -12,4 +12,5 @@ import { ModelEntries } from './entries/models';
   const { models } = await new Parser().parse(filePath);
 
   await new ModelEntries().load(models);
+  // after the models are loaded assign models  their respective product mapping
 })();

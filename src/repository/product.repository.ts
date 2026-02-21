@@ -1,3 +1,7 @@
+import axios from 'axios';
+import { SHOPIFY_GRAPHQL } from '../constants/constant';
+import { GET_PRODUCTS_BY_SKU_QUERY } from '../query/product.query';
+
 export default class ProductRepository {
   constructProductBundleDetails(data: {
     productByIdentifier: {
@@ -21,6 +25,42 @@ export default class ProductRepository {
       bundles,
     };
   }
+
+  async getProductBySKU(sku: string) {
+    if (!sku) throw new Error('Product SKU is required!');
+
+    const response = await axios.post(
+      SHOPIFY_GRAPHQL,
+      {
+        query: GET_PRODUCTS_BY_SKU_QUERY,
+        variables: {
+          query: `sku:${sku}`,
+        },
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Shopify-Access-Token': process.env.ADMIN_ACCESS_TOKEN,
+        },
+      },
+    );
+
+    if (response?.data?.errors?.length > 0) {
+      return {
+        success: false,
+        error: response.data.errors,
+      };
+    }
+
+    const results = response?.data?.data?.products?.nodes;
+
+    return {
+      success: true,
+      data: results,
+    };
+  }
+
+  assignModelsMetafield({ models, sku }: { sku: string; models: string[] }) {}
 }
 
 function extractoptions(options: any) {
