@@ -26,7 +26,7 @@ import { ModelEntries } from './entries/models';
   ];
 
   // load the models first to create their respective metaobject reference before assigning them to products
-  new ModelEntries()
+  modelEntries
     .load(models)
     .then(async () => {
       // once the task is finished we now assign models to products mapping
