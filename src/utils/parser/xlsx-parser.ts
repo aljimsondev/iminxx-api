@@ -9,16 +9,17 @@ export class Parser {
     await workbook.xlsx.readFile(path);
     // Extract models sheet
     const models = this.extractModels(workbook);
+    const productModelsMapping = this.extractProductModelsMapping(workbook);
 
-    return { models };
+    this.media = (workbook as any).media;
+
+    return { models, productModelsMapping };
   }
 
   private extractModels(workbook: ExcelJS.Workbook) {
     const worksheet = workbook.getWorksheet('MODEL SIZE');
 
     if (!worksheet) throw new Error('Unable to parse worksheet!');
-
-    this.media = (workbook as any).media;
 
     const json = this.modelSheetToJson(worksheet);
 
@@ -96,5 +97,44 @@ export class Parser {
     });
 
     return imageMap;
+  }
+
+  extractProductModelsMapping(workbook: ExcelJS.Workbook) {
+    const worksheet = workbook.getWorksheet('MODEL SIZE TAGGING');
+    if (!worksheet)
+      throw new Error('Unable to parse worksheet for product models mapping!');
+
+    const json: Array<Record<string, any>> = [];
+
+    // Start from row 2 to skip the header row
+    worksheet.eachRow((row, rowNumber) => {
+      if (rowNumber === 1) return; // Skip header
+
+      const skuModel = row.getCell(1).value; // Column A: SKU Model
+      const productName = row.getCell(2).value; // Column B: Product Name
+      const productType = row.getCell(3).value; // Column C: Product Type
+      const humanModel = row.getCell(4).value; // Column D: Human Model
+
+      // Skip empty rows
+      if (!skuModel && !productName) return;
+
+      // Normalize human model: split multi-line values into an array
+      const humanModelRaw = humanModel ? String(humanModel).trim() : '';
+      const humanModels = humanModelRaw
+        ? humanModelRaw
+            .split('\n')
+            .map((m) => m.trim())
+            .filter((m) => m && m !== '-')
+        : [];
+
+      json.push({
+        skuModel: skuModel ? Number(skuModel) : null,
+        productName: productName ? String(productName).trim() : '',
+        productType: productType ? String(productType).trim() : '',
+        humanModels,
+      });
+    });
+
+    return json;
   }
 }

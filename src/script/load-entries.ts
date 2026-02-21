@@ -13,4 +13,5 @@ import { ModelEntries } from './entries/models';
 
   await new ModelEntries().load(models);
   // after the models are loaded assign models  their respective product mapping
+  // await new ProductRepository().assignModelsMetafield()
 })();
