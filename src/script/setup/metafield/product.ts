@@ -1,4 +1,4 @@
-import ProductRepository from '../../repository/product.repository';
+import ProductRepository from '../../../repository/product.repository';
 import {
   MetafieldDefinition,
   MetaobjectDefinition,

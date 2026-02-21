@@ -10,7 +10,7 @@
     "start:prod": "npm run build && npm start",
     "generate:definition": "npm run build && node dist/script/setup-definitions.js",
     "load:entries": "npm run build && node dist/script/load-entries.js",
-    "start:setup": "npm run build && node dist/script/setup.js"
+    "setup": "npm run build && node dist/script/setup/index.js"
   },
   "keywords": [],
   "author": "",

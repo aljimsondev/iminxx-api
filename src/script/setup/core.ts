@@ -1,7 +1,7 @@
 import axios from 'axios';
 import 'dotenv/config';
 
-import { SHOPIFY_GRAPHQL } from '../constants/constant';
+import { SHOPIFY_GRAPHQL } from '../../constants/constant';
 import {
   CREATE_METAFIELD_DEFINITION_QUERY,
   CREATE_METAOBJECT_DEFINITION_QUERY,
@@ -9,7 +9,7 @@ import {
   FIND_METAOBJECT_DEFINITION_BY_TYPE,
   GET_METAOBJECT_ENTRY_BY_QUERY,
   SET_METAFIELD_QUERY,
-} from '../query/metafield.query';
+} from '../../query/metafield.query';
 
 export enum OWNER_TYPE {
   COLLECTION = 'COLLECTION',

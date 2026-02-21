@@ -1,6 +1,6 @@
-import { FileRepository } from '../../repository/file.repository';
-import ProductRepository from '../../repository/product.repository';
-import { ProductModelType } from '../../utils/parser/xlsx-parser';
+import { FileRepository } from '../../../repository/file.repository';
+import ProductRepository from '../../../repository/product.repository';
+import { ProductModelType } from '../../../utils/parser/xlsx-parser';
 import { MetafieldDefinition, MetaobjectDefinition } from '../core';
 
 const fileRepo = new FileRepository();

@@ -1,6 +1,6 @@
 import path from 'path';
 
-import { Parser, ProductModelType } from '../utils/parser/xlsx-parser';
+import { Parser, ProductModelType } from '../../utils/parser/xlsx-parser';
 import { ModelEntries } from './entries/models';
 // import { ModelEntries } from './entries/models';
 
