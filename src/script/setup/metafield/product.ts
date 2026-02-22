@@ -1,4 +1,5 @@
-import ProductRepository from '../../../repository/product.repository';
+import ProductRepository from '@/repository/product.repository';
+import { Logger } from '@/utils/logger';
 import {
   MetafieldDefinition,
   MetaobjectDefinition,
@@ -19,12 +20,20 @@ export class ProductMetafieldDefinition extends MetafieldDefinition {
   }: {
     modelMetaobject?: MetaobjectDefinitionReturnType['data'];
   }) {
-    console.info('[START] Starting generating product metafield definition...');
+    Logger.custom('Starting generating product metafield definition...', {
+      type: 'START',
+      mode: 'background',
+      color: 'MAGENTA',
+    });
 
     Promise.all([
       this.generateModelsMetafieldDefinition(modelMetaobject),
     ]).finally(() => {
-      console.info('[END] Finished generating product metafield definitions!');
+      Logger.custom('Finished generating product metafield definitions!', {
+        type: 'END',
+        mode: 'background',
+        color: 'BLACK',
+      });
     });
   }
 
@@ -37,7 +46,11 @@ export class ProductMetafieldDefinition extends MetafieldDefinition {
           'Unable to get metaobject ID, aborting models metafield generation!',
         );
 
-      console.info('[BEGIN] Generating product models metafield definition...');
+      Logger.custom('Generating product models metafield definition...', {
+        type: 'BEGIN',
+        mode: 'background',
+        color: 'WHITE',
+      });
 
       const { success, data, errors } = await this.create({
         name: 'Product Models',
@@ -57,10 +70,11 @@ export class ProductMetafieldDefinition extends MetafieldDefinition {
       });
 
       if (!success) throw errors;
-      console.info(
-        '[SUCCESS] Feature: Product models metafield definition created successfully! Data: ',
+
+      Logger.success(
+        'Feature: Product models metafield definition created successfully! Data: ' +
+          JSON.stringify(data, null, 2),
       );
-      console.info(data);
 
       return data;
     } catch (e) {
@@ -90,7 +104,7 @@ export class ProductMetafieldDefinition extends MetafieldDefinition {
       );
 
       if (!exactProduct)
-        return console.warn('[WARN] No exact match for ' + productName);
+        return Logger.warn('[WARN] No exact match for ' + productName);
 
       const modelsReference = await Promise.all(
         models.map(async (model) => {

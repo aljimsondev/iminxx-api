@@ -1,6 +1,7 @@
 import axios from 'axios';
 import 'dotenv/config';
 
+import { Logger } from '@/utils/logger';
 import { SHOPIFY_GRAPHQL } from '../../constants/constant';
 import {
   CREATE_METAFIELD_DEFINITION_QUERY,
@@ -141,17 +142,17 @@ export class MetafieldDefinition {
 
     if (Array.isArray(e)) {
       if (e.find((error) => error?.code === 'TAKEN'))
-        return console.warn(
-          `[INFO] (${fuctionName}): Metafield definition already exist, skipping...`,
+        return Logger.warn(
+          `(${fuctionName}): Metafield definition already exist, skipping...`,
         );
 
-      return console.error(`${message} Reason: ${e}`);
+      return Logger.error(`${message} Reason: ${e}`);
     }
 
     if (e?.message)
-      return console.error(`[ERROR] (${fuctionName}): Reason: ${e.message}`);
+      return Logger.error(`(${fuctionName}): Reason: ${e.message}`);
 
-    return console.error(`[ERROR] ${message} Reason: ${e}`);
+    return Logger.error(`${message} Reason: ${e}`);
   }
 
   async set(metafielInputs: MetafieldsSetInput[]) {
@@ -260,17 +261,17 @@ export class MetaobjectDefinition {
 
     if (Array.isArray(e)) {
       if (e.find((error) => error?.code === 'TAKEN'))
-        return console.warn(
-          `[INFO] (${fuctionName}): Metaobject definition already exist, skipping...`,
+        return Logger.warn(
+          `(${fuctionName}): Metaobject definition already exist, skipping...`,
         );
 
-      return console.error(`${message} Reason: ${e}`);
+      return Logger.error(`${message} Reason: ${e}`);
     }
 
     if (e?.message)
-      return console.error(`[ERROR] (${fuctionName}) Reason: ${e.message}`);
+      return Logger.error(`(${fuctionName}) Reason: ${e.message}`);
 
-    return console.error(`[ERROR] ${message} Reason: ${e}`);
+    return Logger.error(`${message} Reason: ${e}`);
   }
 
   // add additional metafield definition methods here

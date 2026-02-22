@@ -1,3 +1,4 @@
+import { Logger } from '@/utils/logger';
 import { FileRepository } from '../../../repository/file.repository';
 import ProductRepository from '../../../repository/product.repository';
 import { ProductModelType } from '../../../utils/parser/xlsx-parser';
@@ -18,15 +19,23 @@ export class ModelEntries extends MetaobjectDefinition {
    */
   async load(models: Record<string, any>[]) {
     try {
-      console.log('[START] Model entries started uploading...');
+      Logger.custom('Model entries started uploading...', {
+        type: 'START',
+        mode: 'background',
+        color: 'MAGENTA',
+      });
       const transformModelData =
         await this.transformToMetafieldKeyValueFormat(models);
 
       await this.insert(transformModelData).then(() => {
-        console.log('[END] Model entries loaded successfully!');
+        Logger.custom('Model entries loaded successfully!', {
+          type: 'END',
+          mode: 'background',
+          color: 'BLACK',
+        });
       });
     } catch (e: any) {
-      console.error('[Error] Model upload error: ' + e?.message);
+      Logger.error('Model upload error: ' + e?.message);
       throw e;
     }
   }
@@ -49,8 +58,8 @@ export class ModelEntries extends MetaobjectDefinition {
         const { data } = await this.getEntryByHandle(this.type, handle);
 
         if (data) {
-          console.log(
-            `[INFO] Entry ${handle} already exists, setting null value for exclusion!`,
+          Logger.info(
+            `Entry ${handle} already exists, setting null value for exclusion!`,
           );
           return null;
         }
@@ -63,10 +72,10 @@ export class ModelEntries extends MetaobjectDefinition {
           if (data) {
             imgUid = data.id;
           } else {
-            console.error(
-              `[WARN] uploading image for ${model['Model Name']} failed!`,
+            Logger.warn(
+              `uploading image for ${model['Model Name']} failed!` +
+                JSON.stringify(errors, null, 2),
             );
-            console.warn(JSON.stringify(errors, null, 2));
           }
         }
 
@@ -146,17 +155,17 @@ export class ModelEntries extends MetaobjectDefinition {
       const handleField = metainput.find((field) => field.key === 'label');
 
       if (!handleField) {
-        console.warn('[WARN] Skipping entry — no label/handle found');
+        Logger.info('Skipping entry — no label/handle found');
         continue;
       }
 
       const handle = this.createHandle(handleField.value);
 
-      console.log(
-        `[BEGIN] Started adding entry for ${handle} to models metaobject`,
-      );
-
-      // return await this.checkEntryByHandle('models', metainput);
+      Logger.custom(`Started adding entry for ${handle} to models metaobject`, {
+        type: 'BEGIN',
+        mode: 'background',
+        color: 'WHITE',
+      });
 
       const { success, data, errors } = await this.addEntry({
         fields: metainput,
@@ -170,16 +179,23 @@ export class ModelEntries extends MetaobjectDefinition {
       });
 
       if (!success) {
-        console.warn(
-          '[WARN] Failed to add new entry from models metaobject for ' + handle,
+        Logger.warn(
+          'Failed to add new entry from models metaobject for ' +
+            handle +
+            ' Data : ' +
+            JSON.stringify(metainput, null, 2) +
+            ' Errors: ' +
+            JSON.stringify(errors, null, 2),
         );
-        console.log(JSON.stringify(metainput, null, 2));
-        console.warn(errors);
       } else {
-        console.log(
-          `[FINISHED] Added new entry for ${handle} to models metaobject!`,
+        Logger.custom(
+          `Added new entry for ${handle} to models metaobject! Data: ${JSON.stringify(data, null, 2)}`,
+          {
+            type: 'FINISHED',
+            color: 'CYAN',
+            mode: 'background',
+          },
         );
-        console.log(data);
       }
     }
   }
@@ -210,13 +226,21 @@ export class ModelEntries extends MetaobjectDefinition {
   ) {
     const { skuPrefix } = options;
 
-    console.log('[START] Assigning models to products started!');
+    Logger.custom('Assigning models to products started!', {
+      type: 'START',
+      mode: 'background',
+      color: 'MAGENTA',
+    });
+
     for (const product of products) {
       // if no sku found skip it
       if (!product.productSKU) continue;
-      console.info(
-        '[BEGIN] Assigning models to product SKU: ' + product.productSKU,
-      );
+
+      Logger.custom('Assigning models to product SKU: ' + product.productSKU, {
+        type: 'BEGIN',
+        mode: 'background',
+        color: 'WHITE',
+      });
 
       let sku = product.productSKU.toString();
 
@@ -233,23 +257,28 @@ export class ModelEntries extends MetaobjectDefinition {
       });
 
       if (result?.success) {
-        console.info(
-          '[SUCCESS] Successfully assigned product models for product SKU: ' +
+        Logger.success(
+          'Successfully assigned product models for product SKU: ' +
             product.productSKU,
         );
         console.log(JSON.stringify(result?.data, null, 2));
       } else {
         if (result?.errors) {
-          console.info(
-            '[FAILED] Failed to assigned product models for product SKU: ' +
-              product.productSKU,
+          Logger.error(
+            'Failed to assigned product models for product SKU: ' +
+              product.productSKU +
+              ' ' +
+              'Reason: ' +
+              JSON.stringify(result?.errors, null, 2),
           );
-          console.error('Reason: ');
-          console.error(JSON.stringify(result?.errors, null, 2));
         }
       }
     }
-    console.log('[FINISHED] Assigning  models to products task finished!');
+    Logger.custom('Assigning  models to products task finished!', {
+      type: 'FINISHED',
+      color: 'CYAN',
+      mode: 'background',
+    });
   }
 
   private async assign({
@@ -275,8 +304,8 @@ export class ModelEntries extends MetaobjectDefinition {
       );
 
       if (!exactProduct)
-        return console.warn(
-          '[WARN] No exact match for ' + productName + '. Skipping...',
+        return Logger.warn(
+          'No exact match for ' + productName + '. Skipping...',
         );
 
       const modelsReference = await Promise.all(

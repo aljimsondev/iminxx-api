@@ -1,3 +1,4 @@
+import { Logger } from '@/utils/logger';
 import { MetafieldDefinition, OWNER_TYPE } from '../core';
 
 export class CustomerMetafieldDefinition extends MetafieldDefinition {
@@ -6,22 +7,34 @@ export class CustomerMetafieldDefinition extends MetafieldDefinition {
   }
 
   async generate() {
-    console.info(
-      '[START] Starting generating customer metafield definition...',
-    );
+    Logger.custom('Starting generating customer metafield definition...', {
+      type: 'START',
+      mode: 'background',
+      color: 'MAGENTA',
+    });
+
     Promise.all([
       this.generateCustomerWishlistedItemsMetafield(),
       this.generateCustomerWishlistsSyncDateMetafield(),
       this.generateCustomerBirthdateMetafield(),
     ]).finally(() => {
-      console.info('[END] Finished generating customer metafield definitions!');
+      Logger.custom('Finished generating customer metafield definitions!', {
+        type: 'END',
+        mode: 'background',
+        color: 'BLACK',
+      });
     });
   }
 
   async generateCustomerWishlistedItemsMetafield() {
     try {
-      console.info(
-        '[BEGIN] Generating customer wishlisted items metafield definition...',
+      Logger.custom(
+        'Generating customer wishlisted items metafield definition...',
+        {
+          type: 'BEGIN',
+          mode: 'background',
+          color: 'WHITE',
+        },
       );
 
       const { success, data, errors } = await this.create({
@@ -36,10 +49,10 @@ export class CustomerMetafieldDefinition extends MetafieldDefinition {
       });
       if (!success) throw errors;
 
-      console.info(
-        '[SUCCESS] Wishlisted items metafield definition created successfully! Data: ',
+      Logger.success(
+        'Wishlisted items metafield definition created successfully! Data: ' +
+          JSON.stringify(data, null, 2),
       );
-      console.info(data);
     } catch (e) {
       this.logError(e, this.generateCustomerWishlistedItemsMetafield.name);
     }
@@ -47,8 +60,13 @@ export class CustomerMetafieldDefinition extends MetafieldDefinition {
 
   async generateCustomerWishlistsSyncDateMetafield() {
     try {
-      console.info(
-        '[BEGIN] Generating customer wishlisted items sync date metafield definition...',
+      Logger.custom(
+        'Generating customer wishlisted items sync date metafield definition...',
+        {
+          type: 'BEGIN',
+          mode: 'background',
+          color: 'WHITE',
+        },
       );
 
       const { success, data, errors } = await this.create({
@@ -62,10 +80,10 @@ export class CustomerMetafieldDefinition extends MetafieldDefinition {
       });
       if (!success) throw errors;
 
-      console.info(
-        '[SUCCESS] Wishlisted items sync date metafield definition created successfully! Data: ',
+      Logger.success(
+        'Wishlisted items sync date metafield definition created successfully! Data: ' +
+          JSON.stringify(data, null, 2),
       );
-      console.info(data);
     } catch (e) {
       this.logError(e, this.generateCustomerWishlistsSyncDateMetafield.name);
     }
@@ -73,9 +91,11 @@ export class CustomerMetafieldDefinition extends MetafieldDefinition {
 
   async generateCustomerBirthdateMetafield() {
     try {
-      console.info(
-        '[BEGIN] Generating customer birthdate metafield definition...',
-      );
+      Logger.custom('Generating customer birthdate metafield definition...', {
+        type: 'BEGIN',
+        mode: 'background',
+        color: 'WHITE',
+      });
 
       const { success, data, errors } = await this.create({
         name: 'Birth date',
@@ -89,10 +109,10 @@ export class CustomerMetafieldDefinition extends MetafieldDefinition {
 
       if (!success) throw errors;
 
-      console.info(
-        '[SUCCESS] Customer birthdate metafield definition created successfully! Data: ',
+      Logger.success(
+        'Customer birthdate metafield definition created successfully! Data: ' +
+          JSON.stringify(data, null, 2),
       );
-      console.info(data);
     } catch (e) {
       this.logError(e, this.generateCustomerBirthdateMetafield.name);
     }

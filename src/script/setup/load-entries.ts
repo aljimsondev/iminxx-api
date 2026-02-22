@@ -1,5 +1,6 @@
 import path from 'path';
 
+import { Logger } from '@/utils/logger';
 import { Parser, ProductModelType } from '../../utils/parser/xlsx-parser';
 import { ModelEntries } from './entries/models';
 // import { ModelEntries } from './entries/models';
@@ -36,6 +37,6 @@ import { ModelEntries } from './entries/models';
       });
     })
     .catch((e) => {
-      console.log('Loading entries error: ' + e?.message || e);
+      Logger.error('Loading entries error: ' + e?.message || e);
     });
 })();

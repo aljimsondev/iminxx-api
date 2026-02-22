@@ -1,3 +1,4 @@
+import { Logger } from '@/utils/logger';
 import { MetaobjectDefinition } from '../core';
 import {
   customDiscountDetailsDefinition,
@@ -10,14 +11,22 @@ export class MetaobjectDefinitionGenerator extends MetaobjectDefinition {
   }
 
   async generate() {
-    console.info('[START] Starting generating metaobject definitions...');
+    Logger.custom('Starting generating metaobject definitions...', {
+      type: 'START',
+      mode: 'background',
+      color: 'MAGENTA',
+    });
 
     const [promoDetailsMetaobject, modelMetaobject] = await Promise.all([
       this.generateCustomDiscountDetailsMetaobject(),
       this.generateModelMetaobject(),
     ]);
 
-    console.info('[END] Finished generating metaobject definitions!');
+    Logger.custom('Finished generating metaobject definitions!', {
+      type: 'END',
+      mode: 'background',
+      color: 'CYAN',
+    });
 
     return {
       promoDetailsMetaobject,
@@ -26,8 +35,13 @@ export class MetaobjectDefinitionGenerator extends MetaobjectDefinition {
   }
   async generateCustomDiscountDetailsMetaobject() {
     try {
-      console.info(
-        '[BEGIN] Generating custom discount details metaobject definition...',
+      Logger.custom(
+        'Generating custom discount details metaobject definition...',
+        {
+          type: 'BEGIN',
+          mode: 'background',
+          color: 'WHITE',
+        },
       );
 
       const type = 'discount';
@@ -45,8 +59,12 @@ export class MetaobjectDefinitionGenerator extends MetaobjectDefinition {
 
         if (!existed) throw errors;
 
-        console.info('[INFO] Product Model already exist, skipping...');
-        console.info('[PULLING] Getting Custom Discount Details metaobject...');
+        Logger.info('Product Model already exist, skipping...');
+        Logger.custom('Getting Custom Discount Details metaobject...', {
+          type: 'PULLING',
+          color: 'WHITE',
+          mode: 'background',
+        });
         const {
           data: existingMetaobject,
           success: found,
@@ -55,16 +73,14 @@ export class MetaobjectDefinitionGenerator extends MetaobjectDefinition {
 
         if (!found) throw metaobjectErrors;
 
-        console.info(
-          '[SUCCESS] Retrieved Custom Discount Details metaobject...',
-        );
+        Logger.success('Retrieved Custom Discount Details metaobject...');
         return existingMetaobject;
       }
 
-      console.info(
-        '[SUCCESS] Feature: Custom discount details metaobject definition created successfully! Data: ',
+      Logger.success(
+        '[Feature: Custom discount details metaobject definition created successfully! Data: ' +
+          JSON.stringify(data, null, 2),
       );
-      console.info(data);
       return data;
     } catch (e) {
       this.logError(e, this.generateCustomDiscountDetailsMetaobject.name);
@@ -74,7 +90,11 @@ export class MetaobjectDefinitionGenerator extends MetaobjectDefinition {
 
   async generateModelMetaobject() {
     try {
-      console.info('[BEGIN] Generating models metaobject definition...');
+      Logger.custom('Generating models metaobject definition...', {
+        type: 'BEGIN',
+        mode: 'background',
+        color: 'WHITE',
+      });
       const type = 'models';
       const { success, data, errors } = await this.create({
         type: type,
@@ -89,8 +109,14 @@ export class MetaobjectDefinitionGenerator extends MetaobjectDefinition {
 
         if (!existed) throw errors;
 
-        console.info('[INFO] Product Model already exist, skipping...');
-        console.info('[PULLING] Getting Product Model metaobject...');
+        Logger.info('Product Model already exist, proceeding next step...');
+
+        Logger.custom('Getting Product Model metaobject...', {
+          type: 'PULLING',
+          color: 'WHITE',
+          mode: 'background',
+        });
+
         const {
           data: existingMetaobject,
           success: found,
@@ -99,12 +125,13 @@ export class MetaobjectDefinitionGenerator extends MetaobjectDefinition {
 
         if (!found) throw metaobjectErrors;
 
-        console.info('[SUCCESS] Retrieved Product Model metaobject...');
+        Logger.success('Retrieved Product Model metaobject...');
         return existingMetaobject;
       }
 
-      console.info(
-        '[SUCCESS] Feature: Models metaobject definition created successfully! Data: ',
+      Logger.success(
+        'Feature: Models metaobject definition created successfully! Data: ' +
+          JSON.stringify(data, null, 2),
       );
 
       return data;
