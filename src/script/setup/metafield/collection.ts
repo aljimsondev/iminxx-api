@@ -1,3 +1,4 @@
+import { Logger } from '@/utils/logger';
 import { MetafieldDefinition, OWNER_TYPE } from '../core';
 
 export class CollectionMetafieldDefinition extends MetafieldDefinition {
@@ -6,24 +7,33 @@ export class CollectionMetafieldDefinition extends MetafieldDefinition {
   }
 
   async generate() {
-    console.info(
-      '[START] Starting generating collection metafield defination...',
-    );
+    Logger.custom('Starting generating collection metafield definition...', {
+      type: 'START',
+      mode: 'background',
+      color: 'MAGENTA',
+    });
 
     Promise.all([
       this.generateCreateFitProductFilterConfiguration(),
       this.generateCreateFitNavigationScreenSelectorMapping(),
     ]).finally(() => {
-      console.info(
-        '[END] Finished generating collection metafield definations!',
-      );
+      Logger.custom('Finished generating collection metafield definitions!', {
+        type: 'END',
+        mode: 'background',
+        color: 'BLACK',
+      });
     });
   }
 
   async generateCreateFitProductFilterConfiguration() {
     try {
-      console.info(
-        '[BEGIN] Generating Navigation Product Filter Configuration metafield defination...',
+      Logger.custom(
+        'Generating Navigation Product Filter Configuration metafield definition...',
+        {
+          type: 'BEGIN',
+          mode: 'background',
+          color: 'WHITE',
+        },
       );
 
       const { success, data, errors } = await this.create({
@@ -39,10 +49,10 @@ export class CollectionMetafieldDefinition extends MetafieldDefinition {
 
       if (!success) throw errors;
 
-      console.info(
-        '[SUCCESS] Feature: Create/Find Fit Navigation Product Filter Configuration metafield defination created successfully! Data: ',
+      Logger.success(
+        'Feature: Create/Find Fit Navigation Product Filter Configuration metafield definition created successfully! Data: ' +
+          JSON.stringify(data, null, 2),
       );
-      console.info(data);
     } catch (e) {
       this.logError(e, this.generateCreateFitProductFilterConfiguration.name);
     }
@@ -50,8 +60,13 @@ export class CollectionMetafieldDefinition extends MetafieldDefinition {
 
   async generateCreateFitNavigationScreenSelectorMapping() {
     try {
-      console.info(
-        '[BEGIN] Generating navigation screen selector mapping metafield defination...',
+      Logger.custom(
+        'Generating navigation screen selector mapping metafield definition...',
+        {
+          type: 'BEGIN',
+          mode: 'background',
+          color: 'WHITE',
+        },
       );
 
       const { success, data, errors } = await this.create({
@@ -67,10 +82,10 @@ export class CollectionMetafieldDefinition extends MetafieldDefinition {
 
       if (!success) throw errors;
 
-      console.info(
-        '[SUCCESS] Feature: Create/Find Fit navigation screen selector mapping metafield defination created successfully! Data: ',
+      Logger.success(
+        'Feature: Create/Find Fit navigation screen selector mapping metafield definition created successfully! Data: ' +
+          JSON.stringify(data, null, 2),
       );
-      +JSON.stringify(data);
     } catch (e) {
       this.logError(
         e,

@@ -4,6 +4,7 @@ import { SHOPIFY_GRAPHQL } from '../constants/constant';
 import {
   GET_CUSTOMER_BIRTHDAY,
   GET_WISHLISTED_ITEMS,
+  PASSWORD_RESET_BY_URL_QUERY,
   SEND_PASSWORD_RESET_LINK_QUERY,
   SET_WISHLISTED_ITEM_METAFIELD,
   SIGNUP_NEW_CUSTOMER_QUERY,
@@ -512,6 +513,63 @@ export default class CustomerRepository {
         data: {
           message: 'ok',
         },
+      };
+    } catch (e: any) {
+      return {
+        success: false,
+        error: e?.message,
+      };
+    }
+  }
+
+  async resetPasswordByURL({
+    password,
+    url,
+  }: {
+    url: string;
+    password: string;
+  }) {
+    try {
+      const variables = {
+        password,
+        resetUrl: url,
+      };
+
+      const response = await axios.post(
+        process.env.STOREFRONT_API_ENDPOINT!,
+        {
+          query: PASSWORD_RESET_BY_URL_QUERY,
+          variables: variables,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Shopify-Storefront-Access-Token':
+              process.env.STOREFRONT_ACCESS_TOKEN,
+          },
+        },
+      );
+
+      if (response?.data?.errors) {
+        return {
+          success: false,
+          error: response.data.errors,
+        };
+      }
+
+      const custumerResetByUrl = response?.data?.data?.customerResetByUrl;
+
+      const customerUserErrors = custumerResetByUrl?.customerUserErrors;
+
+      if (customerUserErrors?.length > 0) {
+        return { success: false, error: customerUserErrors };
+      }
+
+      const data = custumerResetByUrl?.customer;
+
+      return {
+        success: true,
+        data: data,
       };
     } catch (e: any) {
       return {

@@ -1,12 +1,16 @@
 import axios from 'axios';
 import 'dotenv/config';
 
-import { SHOPIFY_GRAPHQL } from '../constants/constant';
+import { Logger } from '@/utils/logger';
+import { SHOPIFY_GRAPHQL } from '../../constants/constant';
 import {
   CREATE_METAFIELD_DEFINITION_QUERY,
   CREATE_METAOBJECT_DEFINITION_QUERY,
+  CREATE_METAOBJECT_QUERY,
   FIND_METAOBJECT_DEFINITION_BY_TYPE,
-} from '../query/metafield.query';
+  GET_METAOBJECT_ENTRY_BY_QUERY,
+  SET_METAFIELD_QUERY,
+} from '../../query/metafield.query';
 
 export enum OWNER_TYPE {
   COLLECTION = 'COLLECTION',
@@ -60,6 +64,14 @@ type MetaobjectEntryInput = {
   fields: { key: string; value: string }[];
   type: string;
   handle?: string;
+  capabilities?: {
+    onlineStore?: {
+      templateSuffix?: string;
+    };
+    publishable?: {
+      status?: 'ACTIVE' | 'DRAFT';
+    };
+  };
 };
 
 export type MetaobjectDefinitionReturnType = {
@@ -78,6 +90,15 @@ export type MetaobjectDefinitionReturnType = {
     message: string;
     code: string;
   }[];
+};
+
+export type MetafieldsSetInput = {
+  compareDigest?: string;
+  key: string;
+  namespace?: string;
+  ownerId: string;
+  type?: string;
+  value: string;
 };
 
 export class MetafieldDefinition {
@@ -121,17 +142,50 @@ export class MetafieldDefinition {
 
     if (Array.isArray(e)) {
       if (e.find((error) => error?.code === 'TAKEN'))
-        return console.warn(
-          `[INFO] (${fuctionName}): Metafield definition already exist, skipping...`,
+        return Logger.warn(
+          `(${fuctionName}): Metafield definition already exist, skipping...`,
         );
 
-      return console.error(`${message} Reason: ${e}`);
+      return Logger.error(`${message} Reason: ${e}`);
     }
 
     if (e?.message)
-      return console.error(`[ERROR] (${fuctionName}): Reason: ${e.message}`);
+      return Logger.error(`(${fuctionName}): Reason: ${e.message}`);
 
-    return console.error(`[ERROR] ${message} Reason: ${e}`);
+    return Logger.error(`${message} Reason: ${e}`);
+  }
+
+  async set(metafielInputs: MetafieldsSetInput[]) {
+    const response = await axios.post(
+      SHOPIFY_GRAPHQL,
+      {
+        query: SET_METAFIELD_QUERY,
+        variables: {
+          metafields: metafielInputs,
+        },
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Shopify-Access-Token': process.env.ADMIN_ACCESS_TOKEN,
+        },
+      },
+    );
+
+    if (response?.data?.errors) throw response.data.errors;
+
+    const data = response?.data?.data?.metafieldsSet;
+
+    if (data?.userErrors?.length > 0)
+      return {
+        success: false,
+        errors: data.userErrors,
+      };
+
+    return {
+      success: true,
+      data: data?.metafields,
+    };
   }
 }
 
@@ -207,21 +261,21 @@ export class MetaobjectDefinition {
 
     if (Array.isArray(e)) {
       if (e.find((error) => error?.code === 'TAKEN'))
-        return console.warn(
-          `[INFO] (${fuctionName}): Metaobject definition already exist, skipping...`,
+        return Logger.warn(
+          `(${fuctionName}): Metaobject definition already exist, skipping...`,
         );
 
-      return console.error(`${message} Reason: ${e}`);
+      return Logger.error(`${message} Reason: ${e}`);
     }
 
     if (e?.message)
-      return console.error(`[ERROR] (${fuctionName}) Reason: ${e.message}`);
+      return Logger.error(`(${fuctionName}) Reason: ${e.message}`);
 
-    return console.error(`[ERROR] ${message} Reason: ${e}`);
+    return Logger.error(`${message} Reason: ${e}`);
   }
 
-  // add additional metafield defination methods here
-  async addEntry<T = any>({ fields, type, handle }: MetaobjectEntryInput) {
+  // add additional metafield definition methods here
+  async addEntry({ fields, type, handle, capabilities }: MetaobjectEntryInput) {
     if (!type) throw new Error('Metaobject type is required!');
 
     let metaobject: MetaobjectEntryInput = {
@@ -233,10 +287,14 @@ export class MetaobjectDefinition {
       metaobject.handle = handle;
     }
 
+    if (capabilities) {
+      metaobject.capabilities = capabilities;
+    }
+
     const response = await axios.post(
       SHOPIFY_GRAPHQL,
       {
-        query: CREATE_METAOBJECT_DEFINITION_QUERY,
+        query: CREATE_METAOBJECT_QUERY,
         variables: {
           metaobject: metaobject,
         },
@@ -249,6 +307,97 @@ export class MetaobjectDefinition {
       },
     );
 
-    console.log(response.data);
+    if (response?.data?.errors?.length > 0)
+      return {
+        success: false,
+        errors: response?.data?.errors,
+      };
+
+    const metaobjectCreate = response?.data?.data?.metaobjectCreate;
+
+    if (metaobjectCreate?.userErrors?.length > 0) {
+      return {
+        success: false,
+        errors: metaobjectCreate.userErrors,
+      };
+    }
+
+    return {
+      success: true,
+      data: metaobjectCreate?.metaobject,
+    };
+  }
+
+  async getEntryByHandle(type: string, handle: string) {
+    if (!type) throw new Error('Metaobject type is required!');
+    if (!handle) throw new Error('Metaobject handle is required!');
+
+    const response = await axios.post(
+      SHOPIFY_GRAPHQL,
+      {
+        query: GET_METAOBJECT_ENTRY_BY_QUERY,
+        variables: {
+          type: type,
+          query: `handle:${handle}`,
+        },
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Shopify-Access-Token': process.env.ADMIN_ACCESS_TOKEN,
+        },
+      },
+    );
+
+    if (response?.data?.errors?.length > 0)
+      return {
+        success: false,
+        errors: response?.data?.errors,
+      };
+
+    const metaobject = response?.data?.data?.metaobjects?.nodes?.[0];
+
+    return {
+      success: true,
+      data: metaobject,
+    };
+  }
+
+  async findByDisplayName({
+    displayName,
+    type,
+  }: {
+    type: string;
+    displayName: string;
+  }) {
+    const response = await axios.post(
+      SHOPIFY_GRAPHQL,
+      {
+        query: GET_METAOBJECT_ENTRY_BY_QUERY,
+        variables: {
+          type: type,
+          query: `display_name:${displayName}`,
+        },
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Shopify-Access-Token': process.env.ADMIN_ACCESS_TOKEN,
+        },
+      },
+    );
+
+    if (response?.data?.errors?.length > 0)
+      return {
+        success: false,
+        errors: response?.data?.errors,
+      };
+
+    const metaobjects = response?.data?.data?.metaobjects?.nodes;
+
+    return {
+      success: true,
+      data: metaobjects,
+    };
   }
 }

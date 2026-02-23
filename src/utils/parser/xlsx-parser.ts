@@ -1,70 +1,146 @@
-import { read, utils, WorkBook, WorkSheet } from 'xlsx';
+import ExcelJS from 'exceljs';
+
+export type ProductModelType = {
+  productSKU: number | null;
+  productName: string;
+  productType: string;
+  models: string[];
+};
 
 export class Parser {
-  async loadWorkbookFromFile(file: File) {
-    const buffer = await file.arrayBuffer();
-    const data = read(buffer);
+  private media = [];
 
-    return data;
+  async parse(path: string) {
+    const workbook = new ExcelJS.Workbook();
+
+    await workbook.xlsx.readFile(path);
+    // Extract models sheet
+    const models = this.extractModels(workbook);
+    const productModelsMapping = this.extractProductModelsMapping(workbook);
+
+    return { models, productModelsMapping };
   }
 
-  loadSheet(data: WorkBook, sheetName: string) {
-    if (!sheetName) throw new Error('Missing sheetName parameter!');
+  private extractModels(workbook: ExcelJS.Workbook) {
+    const worksheet = workbook.getWorksheet('MODEL SIZE');
 
-    const sheet = data.Sheets[sheetName];
+    if (!worksheet) throw new Error('Unable to parse worksheet!');
 
-    if (!sheet) throw new Error('Unable to get sheet with name ' + sheetName);
+    this.media = (workbook as any).media;
 
-    return sheet;
+    const json = this.modelSheetToJson(worksheet);
+
+    return json;
   }
 
-  sheetToJson(
-    sheet: WorkSheet,
-    options: {
-      rowStart: number;
-      colStart: number;
-    },
-  ) {
-    const { rowStart = 2, colStart = 3 } = options;
-    // Get all cell references in the sheet
-    const range = utils.decode_range(sheet['!ref'] || 'A1');
-
-    const json: Array<Record<string, unknown>> = [];
-
-    // Extract model names from the first row (starting from column C)
+  private modelSheetToJson(worksheet: ExcelJS.Worksheet) {
+    const json: Array<Record<string, any>> = [];
     const modelNames: string[] = [];
-    for (let col = range.s.c + rowStart; col <= range.e.c; col++) {
-      const modelCell = sheet[utils.encode_cell({ r: rowStart, c: col })]; // Row 2 has model names
-      const modelName = modelCell?.v;
-      if (modelName) {
-        modelNames.push(modelName);
-      }
+
+    // Extract model names from row 2 (columns D onwards)
+    for (let col = 4; col <= worksheet.columnCount - 1; col++) {
+      const cell = worksheet.getCell(2, col);
+
+      modelNames.push(cell.value ? String(cell.value) : `Model-${col}`);
     }
 
-    // Iterate through model names and create objects
+    const imageMap = this.extractImages(worksheet);
+
+    // Iterate through models
     for (let modelIndex = 0; modelIndex < modelNames.length; modelIndex++) {
-      const modelData: Record<string, unknown> = {
+      const modelCol = 4 + modelIndex;
+      const modelData: Record<string, any> = {
         'Model Name': modelNames[modelIndex],
       };
 
-      const modelCol = range.s.c + colStart + modelIndex;
+      // Look up image by modelCol (0-based = modelCol - 1)
+      const image = imageMap[modelCol - 1];
+      if (image) {
+        modelData['thumbnail'] = image.data;
+      }
 
-      // Iterate through rows to get attributes for this model
-      for (let row = range.s.r + 1; row <= range.e.r; row++) {
-        const attributeCell =
-          sheet[utils.encode_cell({ r: row, c: range.s.c })];
-        const valueCell = sheet[utils.encode_cell({ r: row, c: modelCol })];
+      // Extract attributes (rows 3+)
+      for (let row = 3; row <= worksheet.rowCount; row++) {
+        const attributeCell = worksheet.getCell(row, 1);
+        const valueCell = worksheet.getCell(row, modelCol);
 
-        const attributeName = attributeCell?.v;
-        const attributeValue = valueCell?.v;
-
-        if (attributeName) {
-          modelData[attributeName] = attributeValue ?? null;
+        if (attributeCell.value) {
+          modelData[String(attributeCell.value)] = valueCell.value ?? null;
         }
       }
 
       json.push(modelData);
     }
+
+    return json;
+  }
+
+  private extractImages(
+    worksheet: ExcelJS.Worksheet,
+  ): Record<string, { imageId: number; data: string }> {
+    const imageMap: Record<string, { imageId: number; data: string }> = {};
+    const media = worksheet.getImages();
+
+    // Create a map of imageId to base64
+    media.forEach((m) => {
+      if (!isNaN((m as any).imageId)) {
+        const key = m.range.tl.nativeCol;
+        const matchedMedia: any = this.media.find(
+          (_media) => (_media as any).index == m.imageId,
+        );
+
+        if (matchedMedia) {
+          const imageBuffer = matchedMedia.buffer;
+          const mimeType = `${matchedMedia.type}/${matchedMedia.extension}`;
+          const base64 = Buffer.from(imageBuffer).toString('base64');
+          imageMap[key] = {
+            imageId: (m as any).imageId,
+            data: `data:${mimeType};base64,${base64}`,
+          };
+        } else {
+          console.log('Media not found for: ' + m.imageId);
+        }
+      }
+    });
+
+    return imageMap;
+  }
+
+  extractProductModelsMapping(workbook: ExcelJS.Workbook): ProductModelType[] {
+    const worksheet = workbook.getWorksheet('MODEL SIZE TAGGING');
+    if (!worksheet)
+      throw new Error('Unable to parse worksheet for product models mapping!');
+
+    const json: ProductModelType[] = [];
+
+    // Start from row 2 to skip the header row
+    worksheet.eachRow((row, rowNumber) => {
+      if (rowNumber === 1) return; // Skip header
+
+      const skuModel = row.getCell(1).value; // Column A: SKU Model
+      const productName = row.getCell(2).value; // Column B: Product Name
+      const productType = row.getCell(3).value; // Column C: Product Type
+      const humanModel = row.getCell(4).value; // Column D: Human Model
+
+      // Skip empty rows
+      if (!skuModel && !productName) return;
+
+      // Normalize human model: split multi-line values into an array
+      const humanModelRaw = humanModel ? String(humanModel).trim() : '';
+      const humanModels = humanModelRaw
+        ? humanModelRaw
+            .split('\n')
+            .map((m) => m.trim())
+            .filter((m) => m && m !== '-')
+        : [];
+
+      json.push({
+        productSKU: skuModel ? Number(skuModel) : null,
+        productName: productName ? String(productName).trim() : '',
+        productType: productType ? String(productType).trim() : '',
+        models: humanModels,
+      });
+    });
 
     return json;
   }

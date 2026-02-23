@@ -47,7 +47,34 @@ export const CREATE_METAOBJECT_QUERY = `mutation CreateMetaobject($metaobject: M
   metaobjectCreate(metaobject: $metaobject) {
     metaobject {
       handle
+      id
+    }
+    userErrors {
+      field
+      message
+      code
+    }
+  }
+}`;
+
+export const GET_METAOBJECT_ENTRY_BY_QUERY = `query GetMetaobjectsByQuery($type: String!, $query: String!) {
+    metaobjects(type: $type, first: 1, query: $query) {
+      nodes {
+        handle
+        id
+        type
+      }
+    }
+}`;
+
+export const SET_METAFIELD_QUERY = `mutation MetafieldsSet($metafields: [MetafieldsSetInput!]!) {
+  metafieldsSet(metafields: $metafields) {
+    metafields {
+      key
+      namespace
+      value
       createdAt
+      updatedAt
     }
     userErrors {
       field

@@ -1,3 +1,4 @@
+import { Logger } from '@/utils/logger';
 import {
   MetafieldDefinition,
   MetaobjectDefinitionReturnType,
@@ -14,14 +15,22 @@ export class ShopMetafieldDefinition extends MetafieldDefinition {
   }: {
     promoDetailsMetaobject: MetaobjectDefinitionReturnType['data'] | undefined;
   }) {
-    console.info('[START] Starting generating shop metafield defination...');
+    Logger.custom('Starting generating shop metafield definition...', {
+      type: 'START',
+      mode: 'background',
+      color: 'MAGENTA',
+    });
 
     Promise.all([
       this.generateCustomPromoDetailsMetafieldDefinition(
         promoDetailsMetaobject,
       ),
     ]).finally(() => {
-      console.info('[END] Finished generating shop metafield definations!');
+      Logger.custom('Finished generating shop metafield definitions!', {
+        type: 'END',
+        mode: 'background',
+        color: 'BLACK',
+      });
     });
   }
 
@@ -34,9 +43,15 @@ export class ShopMetafieldDefinition extends MetafieldDefinition {
           'Unable to get metaobject ID, aborting custom promo details metafield generation!',
         );
 
-      console.info(
-        '[BEGIN] Generating custom discount details metafield defination...',
+      Logger.custom(
+        'Generating custom discount details metafield definition...',
+        {
+          type: 'BEGIN',
+          mode: 'background',
+          color: 'WHITE',
+        },
       );
+
       const { success, data, errors } = await this.create({
         name: 'Feature: Custom Discount Details',
         namespace: 'custom',
@@ -55,10 +70,11 @@ export class ShopMetafieldDefinition extends MetafieldDefinition {
       });
 
       if (!success) throw errors;
-      console.info(
-        '[SUCCESS] Feature: Custom discount details metafield defination created successfully! Data: ',
+
+      Logger.success(
+        ' Feature: Custom discount details metafield definition created successfully! Data: ' +
+          JSON.stringify(data, null, 2),
       );
-      console.info(data);
 
       return data;
     } catch (e) {

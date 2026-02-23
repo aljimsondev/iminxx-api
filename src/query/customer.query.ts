@@ -93,3 +93,17 @@ export const SEND_PASSWORD_RESET_LINK_QUERY = `mutation customerRecover($email: 
     }
   }
 }`;
+
+export const PASSWORD_RESET_BY_URL_QUERY = `mutation customerResetByUrl($resetUrl: URL!, $password: String!) {
+  customerResetByUrl(resetUrl: $resetUrl, password: $password) {
+    customer {
+      id
+      updatedAt
+    }
+    customerUserErrors {
+      code
+      message
+      field
+    }
+  }
+}`;
