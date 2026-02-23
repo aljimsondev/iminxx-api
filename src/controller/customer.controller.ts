@@ -307,9 +307,13 @@ export const resetPasswordByURL = async (req: Request, res: Response) => {
       });
     }
 
+    const clientUrl = req.get('x-client-url');
+
+    if (!clientUrl) throw new Error('Missing client url header params!');
+
     const { success, data, error } = await customerService.resetPasswordByURL({
       password: validatedPassword,
-      url: req.url,
+      url: clientUrl,
     });
 
     if (!success) return res.json({ success: false, error: error });
