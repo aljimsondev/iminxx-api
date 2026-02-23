@@ -3,6 +3,7 @@ import * as customerService from '../service/customer.service';
 import {
   addressSchema,
   newCustomerSchema,
+  passwordSchema,
   updateCustomerSchema,
   wishlistItemSchema,
   wishlistItemsSchema,
@@ -271,6 +272,52 @@ export const sendPasswordResetLink = async (req: Request, res: Response) => {
     if (!success) return res.json({ success: false, error: error });
 
     return res.json({ success: true, data: data });
+  } catch (err: any) {
+    return res.status(500).json({
+      success: false,
+      error: err.message || err,
+    });
+  }
+};
+
+export const resetPasswordByURL = async (req: Request, res: Response) => {
+  try {
+    const body = await req.body;
+    if (!body?.password) throw new Error('Customer password is required!');
+
+    // validate the password
+    const {
+      success: validated,
+      data: validatedPassword,
+      error: validationErrors,
+    } = passwordSchema.safeParse(body.password);
+
+    if (!validated) {
+      const parsedErrors = JSON.parse(validationErrors as any) as any[];
+
+      const zodErrors = parsedErrors.map((zodError) => ({
+        message: zodError?.message,
+        code: zodError?.code,
+        path: zodError?.path,
+      }));
+
+      return res.json({
+        success: false,
+        error: zodErrors,
+      });
+    }
+
+    const { success, data, error } = await customerService.resetPasswordByURL({
+      password: validatedPassword,
+      url: req.url,
+    });
+
+    if (!success) return res.json({ success: false, error: error });
+
+    return res.json({
+      success: true,
+      data,
+    });
   } catch (err: any) {
     return res.status(500).json({
       success: false,

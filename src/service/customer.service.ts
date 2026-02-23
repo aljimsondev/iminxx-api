@@ -71,3 +71,8 @@ export const sendPasswordResetLink = async ({
   email: string;
   customerIpAddress: string;
 }) => await customerRepo.sendPasswordResetLink({ customerIpAddress, email });
+
+export const resetPasswordByURL = async (params: {
+  url: string;
+  password: string;
+}) => await customerRepo.resetPasswordByURL(params);

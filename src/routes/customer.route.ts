@@ -1,6 +1,7 @@
 import express from 'express';
 import {
   getCustomerBithdate,
+  resetPasswordByURL,
   sendPasswordResetLink,
   setWishlistedItem,
   signup,
@@ -22,5 +23,6 @@ router.post('/:customer_id/wishlist/set', setWishlistedItem);
 router.post('/:customer_id/wishlist', syncWishlistedItem);
 router.post('/signup', signup);
 router.post('/reset-link', sendPasswordResetLink);
+router.post('/reset/password', resetPasswordByURL);
 
 export default router;
