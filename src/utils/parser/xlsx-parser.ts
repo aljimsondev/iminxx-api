@@ -5,6 +5,7 @@ export type ProductModelType = {
   productName: string;
   productType: string;
   models: string[];
+  handle: string;
 };
 
 export class Parser {
@@ -120,7 +121,8 @@ export class Parser {
       const skuModel = row.getCell(1).value; // Column A: SKU Model
       const productName = row.getCell(2).value; // Column B: Product Name
       const productType = row.getCell(3).value; // Column C: Product Type
-      const humanModel = row.getCell(4).value; // Column D: Human Model
+      const handle = row.getCell(4).value; // Column D: Human Model
+      const humanModel = row.getCell(5).value; // Column E: Human Model
 
       // Skip empty rows
       if (!skuModel && !productName) return;
@@ -139,6 +141,7 @@ export class Parser {
         productName: productName ? String(productName).trim() : '',
         productType: productType ? String(productType).trim() : '',
         models: humanModels,
+        handle: handle ? String(handle).trim() : '',
       });
     });
 

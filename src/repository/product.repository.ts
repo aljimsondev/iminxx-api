@@ -60,6 +60,40 @@ export default class ProductRepository {
       data: results,
     };
   }
+
+  async getProductsByQuery(query: string) {
+    if (!query) throw new Error('Query is required!');
+
+    const response = await axios.post(
+      SHOPIFY_GRAPHQL,
+      {
+        query: GET_PRODUCTS_BY_SKU_QUERY,
+        variables: {
+          query: query,
+        },
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Shopify-Access-Token': process.env.ADMIN_ACCESS_TOKEN,
+        },
+      },
+    );
+
+    if (response?.data?.errors?.length > 0) {
+      return {
+        success: false,
+        error: response.data.errors,
+      };
+    }
+
+    const results = response?.data?.data?.products?.nodes;
+
+    return {
+      success: true,
+      data: results,
+    };
+  }
 }
 
 function extractoptions(options: any) {

@@ -21,7 +21,8 @@ import { ModelEntries } from './entries/models';
     {
       productSKU: 12020188,
       models: ['Karen'],
-      productName: '5th Gen 100% Non-Slip Strapless Bra',
+      productName: 'Seamless Bikini Cheeky',
+      handle: 'seamless-bikini-cheeky',
       productType: 'bra',
     },
   ];
@@ -31,10 +32,7 @@ import { ModelEntries } from './entries/models';
     .load(models)
     .then(async () => {
       // once the task is finished we now assign models to products mapping
-      await modelEntries.assignToProducts(productModelsMapping, {
-        // for production you may want to add a prefix to this SKU's you can set it in here: ex, BIG. This will adjust the product mapping sku to BIG-0194554 for example
-        skuPrefix: undefined,
-      });
+      await modelEntries.assignToProductsByHandle(productModelsMapping);
     })
     .catch((e) => {
       Logger.error('Loading entries error: ' + e?.message || e);

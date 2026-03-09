@@ -281,6 +281,53 @@ export class ModelEntries extends MetaobjectDefinition {
     });
   }
 
+  async assignToProductsByHandle(products: ProductModelType[]) {
+    Logger.custom('Assigning models to products started!', {
+      type: 'START',
+      mode: 'background',
+      color: 'MAGENTA',
+    });
+
+    for (const product of products) {
+      // if no title found skip it
+      if (!product.productName) continue;
+
+      Logger.custom('Assigning models to product: ' + product.productName, {
+        type: 'BEGIN',
+        mode: 'background',
+        color: 'WHITE',
+      });
+
+      const result = await this.assignByProductHandle({
+        models: product.models,
+        handle: product.handle,
+      });
+
+      if (result?.success) {
+        Logger.success(
+          'Successfully assigned product models for product: ' +
+            product.productName,
+        );
+        console.log(JSON.stringify(result?.data, null, 2));
+      } else {
+        if (result?.errors) {
+          Logger.error(
+            'Failed to assigned product models for product SKU: ' +
+              product.productSKU +
+              ' ' +
+              'Reason: ' +
+              JSON.stringify(result?.errors, null, 2),
+          );
+        }
+      }
+    }
+    Logger.custom('Assigning  models to products task finished!', {
+      type: 'FINISHED',
+      color: 'CYAN',
+      mode: 'background',
+    });
+  }
+
   private async assign({
     models,
     productSKU,
@@ -334,6 +381,56 @@ export class ModelEntries extends MetaobjectDefinition {
         },
       ]);
 
+      return result;
+    }
+    return {
+      success: false,
+      errors: error,
+    };
+  }
+
+  private async assignByProductHandle({
+    models,
+    handle,
+  }: {
+    models: string[];
+    handle: string;
+  }) {
+    if (!handle) throw new Error('Product handle is required!');
+
+    const { data, success, error } = await productRepo.getProductsByQuery(
+      `handle:${handle}`,
+    );
+
+    if (success) {
+      const product = data[0];
+
+      if (!product)
+        return Logger.warn(
+          'Product with handle ' + handle + ' does not exist. Skipping...',
+        );
+
+      const modelsReference = await Promise.all(
+        models.map(async (model) => {
+          const results = await this.findByDisplayName({
+            type: this.type,
+            displayName: model,
+          });
+          if (results.data?.length > 0) return results.data[0]; // return first matched metaobject
+          return null;
+        }),
+      );
+      const filterModels = modelsReference.filter((model) => model !== null);
+      // NOTE: Metafields allows maximum of 25 per transaction so in case that there are multiple models in a product which is impossible in the current use-case, you can use createChunks method
+      const result = await this.metafield.set([
+        {
+          type: 'list.metaobject_reference',
+          ownerId: product.id,
+          namespace: 'custom',
+          key: 'product_models',
+          value: JSON.stringify(filterModels.map((model) => model.id)),
+        },
+      ]);
       return result;
     }
     return {
