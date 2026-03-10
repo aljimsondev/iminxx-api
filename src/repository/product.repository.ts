@@ -1,7 +1,11 @@
 import axios from 'axios';
 import 'dotenv/config';
 import { SHOPIFY_GRAPHQL } from '../constants/constant';
-import { GET_PRODUCTS_BY_SKU_QUERY } from '../query/product.query';
+import {
+  GET_METAFIELD_QUERY,
+  GET_PRODUCTS_BY_QUERY,
+  GET_PRODUCTS_BY_SKU_QUERY,
+} from '../query/product.query';
 
 export default class ProductRepository {
   constructProductBundleDetails(data: {
@@ -67,7 +71,7 @@ export default class ProductRepository {
     const response = await axios.post(
       SHOPIFY_GRAPHQL,
       {
-        query: GET_PRODUCTS_BY_SKU_QUERY,
+        query: GET_PRODUCTS_BY_QUERY,
         variables: {
           query: query,
         },
@@ -93,6 +97,38 @@ export default class ProductRepository {
       success: true,
       data: results,
     };
+  }
+
+  async hasAssignedModel(productId: string) {
+    const response = await axios.post(
+      SHOPIFY_GRAPHQL,
+      {
+        query: GET_METAFIELD_QUERY,
+        variables: {
+          ownerId: productId,
+          namespace: 'custom',
+          key: 'product_models',
+        },
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Shopify-Access-Token': process.env.ADMIN_ACCESS_TOKEN,
+        },
+      },
+    );
+
+    const data = response?.data?.data;
+
+    const metafield = data?.product?.metafield;
+
+    if (!metafield) return false;
+
+    const parsedValue = JSON.parse(metafield?.value);
+
+    if (parsedValue.length > 0) return true;
+
+    return false;
   }
 }
 

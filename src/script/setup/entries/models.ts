@@ -1,4 +1,5 @@
 import { Logger } from '@/utils/logger';
+import fs from 'fs';
 import { FileRepository } from '../../../repository/file.repository';
 import ProductRepository from '../../../repository/product.repository';
 import { ProductModelType } from '../../../utils/parser/xlsx-parser';
@@ -300,7 +301,7 @@ export class ModelEntries extends MetaobjectDefinition {
 
       const result = await this.assignByProductHandle({
         models: product.models,
-        handle: product.handle,
+        handle: product.handle || '',
       });
 
       if (result?.success) {
@@ -321,6 +322,83 @@ export class ModelEntries extends MetaobjectDefinition {
         }
       }
     }
+    Logger.custom('Assigning  models to products task finished!', {
+      type: 'FINISHED',
+      color: 'CYAN',
+      mode: 'background',
+    });
+  }
+
+  async assignToProductsByTitle(products: ProductModelType[]) {
+    Logger.custom('Assigning models to products started!', {
+      type: 'START',
+      mode: 'background',
+      color: 'MAGENTA',
+    });
+
+    const failed = [];
+    const notMatchedProducts: string[] = [];
+
+    for (const product of products) {
+      try {
+        // if no title found skip it
+        if (!product.productName) continue;
+
+        Logger.custom('Assigning models to product: ' + product.productName, {
+          type: 'BEGIN',
+          mode: 'background',
+          color: 'WHITE',
+        });
+
+        const result = await this.assignByTitle({
+          models: product.models,
+          title: product.productName,
+          notFoundProducts: notMatchedProducts,
+        });
+
+        if (result?.success) {
+          Logger.success(
+            'Successfully assigned product models for product: ' +
+              product.productName,
+          );
+          console.log(JSON.stringify(result?.data, null, 2));
+        } else {
+          if (result?.errors) {
+            Logger.error(
+              'Failed to assigned product models for product SKU: ' +
+                product.productSKU +
+                ' ' +
+                'Reason: ' +
+                JSON.stringify(result?.errors, null, 2),
+            );
+          }
+        }
+      } catch (e) {
+        Logger.warn(
+          'Error occurred assigning model to: ' + product.productName,
+        );
+
+        failed.push(product);
+      }
+    }
+
+    if (failed.length > 0) {
+      fs.writeFileSync('failed_products.json', JSON.stringify(failed, null, 2));
+      console.log(
+        `Saved ${failed.length} failed products to failed_products.json`,
+      );
+    }
+
+    if (notMatchedProducts.length > 0) {
+      fs.writeFileSync(
+        'not_match_products.json',
+        JSON.stringify(notMatchedProducts, null, 2),
+      );
+      console.log(
+        `Saved ${notMatchedProducts.length} not matched products to not_match_products.json`,
+      );
+    }
+
     Logger.custom('Assigning  models to products task finished!', {
       type: 'FINISHED',
       color: 'CYAN',
@@ -432,6 +510,111 @@ export class ModelEntries extends MetaobjectDefinition {
         },
       ]);
       return result;
+    }
+    return {
+      success: false,
+      errors: error,
+    };
+  }
+
+  private async assignByTitle({
+    models,
+    title,
+    notFoundProducts,
+  }: {
+    models: string[];
+    title: string;
+    notFoundProducts: any[];
+  }) {
+    if (!title) throw new Error('Product title is required!');
+
+    const { data, success, error } = await productRepo.getProductsByQuery(
+      `title:${title} AND status:active`,
+    );
+
+    if (success) {
+      const normalize = (str: string) =>
+        str
+          .toLowerCase()
+          .trim()
+          .replace(/\u00A0/g, ' ') // non-breaking spaces
+          .replace(/[-\/]/g, ' ') // replace hyphens/slashes with space  ← fix
+          .replace(/[^a-z0-9\s]/g, '') // remove remaining special characters
+          .replace(/\s+/g, ' '); // collapse multiple spaces
+
+      const filteredProducts: any[] = data.filter((product: any) =>
+        normalize(product.title).startsWith(normalize(title)),
+      );
+
+      if (filteredProducts.length <= 0) {
+        const res = {
+          title: title,
+          results: data,
+          count: data.length,
+        };
+
+        notFoundProducts.push(res); // push to array for record keeping
+
+        return Logger.warn(
+          'No matched results for product: ' + title + '. Skipping...',
+        );
+      }
+
+      const modelsReference = await Promise.all(
+        models.map(async (model) => {
+          const results = await this.findByDisplayName({
+            type: this.type,
+            displayName: model,
+          });
+          if (results.data?.length > 0) return results.data[0]; // return first matched metaobject
+          return null;
+        }),
+      );
+
+      const filterModels = modelsReference.filter((model) => model !== null);
+
+      if (filterModels.length <= 0)
+        return Logger.warn(
+          'No result for model ' + JSON.stringify(models, null, 2),
+        );
+
+      for (const product of filteredProducts) {
+        // check if metafield already assign
+        Logger.custom('Assigning to: ' + product.title, {
+          type: 'BEGIN',
+          color: 'WHITE',
+          mode: 'background',
+        });
+
+        const hasAssignedModel = await productRepo.hasAssignedModel(product.id);
+
+        if (hasAssignedModel) {
+          Logger.info(
+            'Already assigned model to: ' + product.title + '. Skipping...',
+          );
+        } else {
+          await this.metafield.set([
+            {
+              type: 'list.metaobject_reference',
+              ownerId: product.id,
+              namespace: 'custom',
+              key: 'product_models',
+              value: JSON.stringify(filterModels.map((model) => model.id)),
+            },
+          ]);
+        }
+      }
+
+      Logger.custom(`Models assigned to product :${title}`, {
+        type: 'END',
+        color: 'CYAN',
+        mode: 'background',
+      });
+
+      return {
+        success: true,
+        data: filteredProducts.map((product) => product.title),
+      };
     }
     return {
       success: false,
