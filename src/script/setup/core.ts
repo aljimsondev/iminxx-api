@@ -10,6 +10,7 @@ import {
   FIND_METAOBJECT_DEFINITION_BY_TYPE,
   GET_METAOBJECT_ENTRY_BY_QUERY,
   SET_METAFIELD_QUERY,
+  UPDATE_METAOBJECT_QUERY,
 } from '../../query/metafield.query';
 
 export enum OWNER_TYPE {
@@ -38,6 +39,10 @@ export type Metaobject = {
   fields: { key: string; value: string }[];
   handle?: string;
   type: string;
+};
+
+export type MetaobjectUpdateInput = Omit<Metaobject, 'type'> & {
+  redirectNewHandle?: boolean;
 };
 
 export type MetaobjectDefinitionInputType = {
@@ -398,6 +403,43 @@ export class MetaobjectDefinition {
     return {
       success: true,
       data: metaobjects,
+    };
+  }
+
+  async update(id: string, metaobject: MetaobjectUpdateInput) {
+    if (!id) throw new Error('Metaobject id is required!');
+    if (!metaobject) throw new Error('Metaobject input is required!');
+
+    const response = await axios.post(
+      SHOPIFY_GRAPHQL,
+      {
+        query: UPDATE_METAOBJECT_QUERY,
+        variables: {
+          id,
+          metaobject: metaobject,
+        },
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Shopify-Access-Token': process.env.ADMIN_ACCESS_TOKEN,
+        },
+      },
+    );
+
+    if (response?.data?.errors) throw response.data.errors;
+
+    const data = response?.data?.data?.metaobjectUpdate;
+
+    if (data?.userErrors?.length > 0)
+      return {
+        success: false,
+        errors: data.userErrors,
+      };
+
+    return {
+      success: true,
+      data: data?.metaobject,
     };
   }
 }

@@ -7,6 +7,7 @@ import {
 } from '../query/file.query';
 import {
   FileCreateInput,
+  FileCreateInputDuplicateResolutionMode,
   ImageReturnType,
   StagedMediaUploadTarget,
   StagedUploadInput,
@@ -61,11 +62,13 @@ export class FileRepository {
     filename,
     mimetype,
     resource = StagedUploadTargetGenerateUploadResource.IMAGE,
+    duplicateResolutionMode = 'APPEND_UUID',
   }: {
     base64: string;
     filename: string;
     mimetype?: string;
     resource?: StagedUploadTargetGenerateUploadResource;
+    duplicateResolutionMode?: FileCreateInputDuplicateResolutionMode;
   }) {
     try {
       const _mimetype =
@@ -107,7 +110,7 @@ export class FileRepository {
         {
           originalSource: resourceUrl,
           filename: filename,
-          duplicateResolutionMode: 'APPEND_UUID',
+          duplicateResolutionMode: duplicateResolutionMode,
           contentType: 'IMAGE',
         },
       ]);

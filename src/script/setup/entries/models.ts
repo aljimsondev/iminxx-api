@@ -1,3 +1,4 @@
+import { FileCreateInputDuplicateResolutionMode } from '@/types/file';
 import { Logger } from '@/utils/logger';
 import fs from 'fs';
 import { FileRepository } from '../../../repository/file.repository';
@@ -39,6 +40,79 @@ export class ModelEntries extends MetaobjectDefinition {
       Logger.error('Model upload error: ' + e?.message);
       throw e;
     }
+  }
+
+  async updateModelImages(models: Record<string, any>[]) {
+    Logger.custom('Starting model photo update', {
+      type: 'START',
+      color: 'MAGENTA',
+      mode: 'background',
+    });
+    for (const model of models) {
+      try {
+        const modelName = model['Model Name'];
+        const base64 = model['thumbnail'];
+
+        Logger.custom(`Updating ${modelName}...`, {
+          type: 'BEGIN',
+          color: 'WHITE',
+          mode: 'background',
+        });
+
+        const handle = this.createHandle(modelName);
+
+        // check if its already existed
+        const { data } = await this.getEntryByHandle(this.type, handle);
+
+        if (data) {
+          if (base64) {
+            const { data: uploadData, errors } = await this.uploadModelImage(
+              base64,
+              model['Model Name'],
+              {
+                duplicateResolutionMode: 'REPLACE', // replace existing model photo
+              },
+            );
+
+            if (uploadData) {
+              const imgUid = uploadData.id;
+
+              const result = await this.update(data.id, {
+                fields: [{ key: 'thumbnail', value: imgUid }],
+              });
+
+              if (result?.success) {
+                Logger.success(`Updated model ${modelName} successfully!`);
+              } else {
+                Logger.warn(
+                  `Model update for ${modelName} failed! Reason: ${JSON.stringify(result?.errors, null, 2)}`,
+                );
+              }
+            } else {
+              Logger.warn(
+                `Uploading image for ${model['Model Name']} failed!` +
+                  JSON.stringify(errors, null, 2),
+              );
+            }
+          } else {
+            Logger.warn('Unable to parsed model image for ' + handle);
+          }
+        } else {
+          Logger.info(`Entry ${handle} does not exist! Skipping update...`);
+        }
+      } catch (e: any) {
+        Logger.warn(
+          'Error updating model: ' + model['Model Name'] + ' Reason: ',
+        );
+        Logger.warn(JSON.stringify(e, null, 2));
+      }
+    }
+
+    Logger.custom('Model photo update task finished!', {
+      type: 'FINISHED',
+      color: 'CYAN',
+      mode: 'background',
+    });
   }
 
   /**
@@ -136,10 +210,17 @@ export class ModelEntries extends MetaobjectDefinition {
     });
   }
 
-  private async uploadModelImage(base64: string, filename: string) {
+  private async uploadModelImage(
+    base64: string,
+    filename: string,
+    options?: {
+      duplicateResolutionMode?: FileCreateInputDuplicateResolutionMode;
+    },
+  ) {
     const { success, data, errors } = await fileRepo.uploadBase64({
       base64,
       filename,
+      duplicateResolutionMode: options?.duplicateResolutionMode,
     });
 
     if (!success) {

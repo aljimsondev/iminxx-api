@@ -83,3 +83,20 @@ export const SET_METAFIELD_QUERY = `mutation MetafieldsSet($metafields: [Metafie
     }
   }
 }`;
+
+export const UPDATE_METAOBJECT_QUERY = `mutation UpdateMetaobject($id: ID!, $metaobject: MetaobjectUpdateInput!) {
+  metaobjectUpdate(id: $id, metaobject: $metaobject) {
+    metaobject {
+      handle
+      updatedAt
+      fields {
+        value
+      }
+    }
+    userErrors {
+      field
+      message
+      code
+    }
+  }
+}`;
