@@ -8,7 +8,7 @@ import { ModelEntries } from './entries/models';
   const filePath = path.join(
     __dirname,
     '../../files',
-    'IMINXX FULL Products.xlsx',
+    'IMINXX FULL Products-PROD.xlsx',
   );
 
   const { productModelsMapping, models } = await new Parser().parse(filePath);

@@ -45,24 +45,6 @@
     "count": 0
   },
   {
-    "title": "Crushing on Lace Bralette",
-    "results": [
-      {
-        "id": "gid://shopify/Product/15305925525875",
-        "title": "Crushing On Lace Midi Bralette in Pink",
-        "category": null,
-        "productType": "Bralette"
-      },
-      {
-        "id": "gid://shopify/Product/15305925656947",
-        "title": "Crushing On Lace Midi Bralette in Sunshine",
-        "category": null,
-        "productType": "Bralette"
-      }
-    ],
-    "count": 2
-  },
-  {
     "title": "[object Object]",
     "results": [],
     "count": 0
@@ -160,30 +142,6 @@
     "count": 1
   },
   {
-    "title": "Air-Shaper Super Mid-Rise Shortie (Gentle Compression)",
-    "results": [
-      {
-        "id": "gid://shopify/Product/15305894527347",
-        "title": "AIR-SHAPER Super Mid-Rise Seamless Shortie (Gentle Compression)",
-        "category": null,
-        "productType": "Cheekies"
-      }
-    ],
-    "count": 1
-  },
-  {
-    "title": "Air-Shaper Super High-Rise Cheekie (Gentle Compression)",
-    "results": [
-      {
-        "id": "gid://shopify/Product/15305894560115",
-        "title": "AIR-SHAPER Super High-Rise Seamless Cheekie (Gentle Compression)",
-        "category": null,
-        "productType": "Shapewear"
-      }
-    ],
-    "count": 1
-  },
-  {
     "title": "The Silky Smooth! Lace Trim Low-Rise Cheekie",
     "results": [
       {
@@ -204,114 +162,6 @@
     "count": 0
   },
   {
-    "title": "Air-Shaper Super Mid-Rise Cheekie (Medium Compression)",
-    "results": [
-      {
-        "id": "gid://shopify/Product/15305888301427",
-        "title": "Air-Shaper Super High-Rise Seamless Cheekie (Medium Compression)",
-        "category": {
-          "name": "Shapewear",
-          "id": "gid://shopify/TaxonomyCategory/archived-214"
-        },
-        "productType": "Shapewear"
-      },
-      {
-        "id": "gid://shopify/Product/15305888334195",
-        "title": "Air-Shaper Super Mid-Rise Seamless Cheekie (Medium Compression)",
-        "category": {
-          "name": "Shapewear",
-          "id": "gid://shopify/TaxonomyCategory/archived-214"
-        },
-        "productType": "Shapewear"
-      },
-      {
-        "id": "gid://shopify/Product/15306822222195",
-        "title": "air-Shaper! No-Wedgie Super Mid-Rise Seamless Cheekie (Medium Compression)",
-        "category": {
-          "name": "High Waisted Briefs",
-          "id": "gid://shopify/TaxonomyCategory/aa-1-6-10-3"
-        },
-        "productType": "Cheekies"
-      }
-    ],
-    "count": 3
-  },
-  {
-    "title": "Air-Shaper Super Mid-Rise Shortie (Medium Compression)",
-    "results": [
-      {
-        "id": "gid://shopify/Product/15305888268659",
-        "title": "Air-Shaper Super Mid-Rise Seamless Shortie (Medium Compression)",
-        "category": {
-          "name": "Shapewear",
-          "id": "gid://shopify/TaxonomyCategory/archived-214"
-        },
-        "productType": "Shapewear"
-      }
-    ],
-    "count": 1
-  },
-  {
-    "title": "Air-Shaper Super High-Rise Cheekie (Medium Compression)",
-    "results": [
-      {
-        "id": "gid://shopify/Product/15305888301427",
-        "title": "Air-Shaper Super High-Rise Seamless Cheekie (Medium Compression)",
-        "category": {
-          "name": "Shapewear",
-          "id": "gid://shopify/TaxonomyCategory/archived-214"
-        },
-        "productType": "Shapewear"
-      }
-    ],
-    "count": 1
-  },
-  {
-    "title": "Air-Shaper Super High-Rise Shortie (Medium Compression)",
-    "results": [
-      {
-        "id": "gid://shopify/Product/15305888235891",
-        "title": "Air-Shaper Super High-Rise Seamless Shortie (Medium Compression)",
-        "category": {
-          "name": "Shapewear",
-          "id": "gid://shopify/TaxonomyCategory/archived-214"
-        },
-        "productType": "Shapewear"
-      },
-      {
-        "id": "gid://shopify/Product/15305888268659",
-        "title": "Air-Shaper Super Mid-Rise Seamless Shortie (Medium Compression)",
-        "category": {
-          "name": "Shapewear",
-          "id": "gid://shopify/TaxonomyCategory/archived-214"
-        },
-        "productType": "Shapewear"
-      }
-    ],
-    "count": 2
-  },
-  {
-    "title": "365 Diamond Side Clasp Anti-Slip Seamless Push Up Strapless Wireless Bra",
-    "results": [
-      {
-        "id": "gid://shopify/Product/15306821992819",
-        "title": "365 Diamond! Anti-Slip Seamless Strapless Push Up Wireless Bra",
-        "category": null,
-        "productType": "Bra"
-      },
-      {
-        "id": "gid://shopify/Product/15306825269619",
-        "title": "365 Diamond Side Clasp Anti-Slip Seamless Strapless Push Up Wireless Bra",
-        "category": {
-          "name": "Bras",
-          "id": "gid://shopify/TaxonomyCategory/archived-205"
-        },
-        "productType": "Bra"
-      }
-    ],
-    "count": 2
-  },
-  {
     "title": "5D Ultra-Ventilation Lightwieight Wireless Bandeau",
     "results": [],
     "count": 0
@@ -322,119 +172,14 @@
     "count": 0
   },
   {
-    "title": "365 Front Clasps Anti-Slip Seamless Strapless Wireless Bra",
-    "results": [
-      {
-        "id": "gid://shopify/Product/15306822287731",
-        "title": "365 Front Clasps Anti-Slip Seamless Strapless Push Up Wireless Bra",
-        "category": {
-          "name": "Lingerie",
-          "id": "gid://shopify/TaxonomyCategory/aa-1-6"
-        },
-        "productType": "Bra"
-      }
-    ],
-    "count": 1
-  },
-  {
-    "title": "Air-ee Scoop Neck Pullover Bra (Signature Edition)",
-    "results": [
-      {
-        "id": "gid://shopify/Product/15306824089971",
-        "title": "air-ee Scoop Neck Seamless Pullover Bra (Signature Edition)",
-        "category": {
-          "name": "Uncategorized",
-          "id": "gid://shopify/TaxonomyCategory/na"
-        },
-        "productType": "Bra"
-      }
-    ],
-    "count": 1
-  },
-  {
     "title": "Oompth-tastic! 2-Way Lightly-Lined Seamless Wireless Bra",
     "results": [],
     "count": 0
   },
   {
-    "title": "Minimalist Ultra-smooth Concealer! Lightly-Lined Seamless Wireless Bra",
-    "results": [
-      {
-        "id": "gid://shopify/Product/15306822713715",
-        "title": "Minimalist Ultra-Smooth Concealer! Lightly-Lined Seamless Strapless Wireless Bra",
-        "category": {
-          "name": "Bras",
-          "id": "gid://shopify/TaxonomyCategory/aa-1-6-3"
-        },
-        "productType": "bra"
-      }
-    ],
-    "count": 1
-  },
-  {
-    "title": "Air-ee V-Sculpt Seamless Bra (Machine Washable)",
-    "results": [
-      {
-        "id": "gid://shopify/Product/15306822451571",
-        "title": "air-ee V-Sculpt Seamless Bra (Machine Wash Edition)",
-        "category": {
-          "name": "Bras",
-          "id": "gid://shopify/TaxonomyCategory/aa-1-6-3"
-        },
-        "productType": "Bra"
-      }
-    ],
-    "count": 1
-  },
-  {
-    "title": "air-ee HalterMuse Seamless Bodysuit (Signature Edition)",
-    "results": [
-      {
-        "id": "gid://shopify/Product/15305867231603",
-        "title": "air-ee HalterMuse BareBack Seamless Bodysuit (Signature Edition) in Black",
-        "category": {
-          "name": "Uncategorized",
-          "id": "gid://shopify/TaxonomyCategory/na"
-        },
-        "productType": "Bodysuit"
-      }
-    ],
-    "count": 1
-  },
-  {
-    "title": "Air-Shaper No-Wedgie Super Mid-Rise Cheekie (Medium Compression)",
-    "results": [
-      {
-        "id": "gid://shopify/Product/15306822222195",
-        "title": "air-Shaper! No-Wedgie Super Mid-Rise Seamless Cheekie (Medium Compression)",
-        "category": {
-          "name": "High Waisted Briefs",
-          "id": "gid://shopify/TaxonomyCategory/aa-1-6-10-3"
-        },
-        "productType": "Cheekies"
-      }
-    ],
-    "count": 1
-  },
-  {
     "title": "Ooompharific! Anti-Slip Strapless Push Up Seamless Wireless Bra",
     "results": [],
     "count": 0
-  },
-  {
-    "title": "No-Camel-Toe SmoothGuard Seamless Mid-Rise Cheekie",
-    "results": [
-      {
-        "id": "gid://shopify/Product/15306821599603",
-        "title": "No-Camel-Toe SmoothGuard Mid-Rise Seamless Cheekie",
-        "category": {
-          "name": "Period Underwear",
-          "id": "gid://shopify/TaxonomyCategory/aa-1-6-11-5"
-        },
-        "productType": "Cheekies"
-      }
-    ],
-    "count": 1
   },
   {
     "title": "Contour-Sculptor! Butt Lifting Stong Compression Shapewear Shortie",
