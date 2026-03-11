@@ -65,7 +65,7 @@ export default class ProductRepository {
     };
   }
 
-  async getProductsByQuery(query: string) {
+  async getProductsByQuery(query: string, afterCursor?: string) {
     if (!query) throw new Error('Query is required!');
 
     const response = await axios.post(
@@ -74,6 +74,7 @@ export default class ProductRepository {
         query: GET_PRODUCTS_BY_QUERY,
         variables: {
           query: query,
+          afterCursor: afterCursor,
         },
       },
       {
@@ -92,10 +93,48 @@ export default class ProductRepository {
     }
 
     const results = response?.data?.data?.products?.nodes;
+    const pagination = response?.data?.data?.products?.pageInfo;
 
     return {
       success: true,
       data: results,
+      pagination: pagination,
+    };
+  }
+
+  async getAllProducts(
+    query: string,
+  ): Promise<{ success: boolean; error?: any; data?: any }> {
+    let products = [];
+    let afterCursor: string | undefined = undefined;
+    let error = null;
+
+    while (true) {
+      const res = await this.getProductsByQuery(query, afterCursor);
+
+      if (!res.success) {
+        error = res.error;
+
+        break;
+      }
+
+      products.push(...res.data);
+
+      if (!res.pagination?.hasNextPage) break;
+
+      if (res.pagination?.endCursor) afterCursor = res.pagination.endCursor;
+    }
+
+    if (error) {
+      return {
+        success: false,
+        error: error,
+      };
+    }
+
+    return {
+      success: true,
+      data: products,
     };
   }
 

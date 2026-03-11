@@ -465,8 +465,13 @@ export class ModelEntries extends MetaobjectDefinition {
 
     if (failed.length > 0) {
       fs.writeFileSync('failed_products.json', JSON.stringify(failed, null, 2));
-      console.log(
+      Logger.custom(
         `Saved ${failed.length} failed products to failed_products.json`,
+        {
+          type: 'WRITE',
+          color: 'MAGENTA',
+          mode: 'text',
+        },
       );
     }
 
@@ -475,8 +480,13 @@ export class ModelEntries extends MetaobjectDefinition {
         'not_match_products.json',
         JSON.stringify(notMatchedProducts, null, 2),
       );
-      console.log(
+      Logger.custom(
         `Saved ${notMatchedProducts.length} not matched products to not_match_products.json`,
+        {
+          type: 'WRITE',
+          color: 'MAGENTA',
+          mode: 'text',
+        },
       );
     }
 
@@ -602,14 +612,19 @@ export class ModelEntries extends MetaobjectDefinition {
     models,
     title,
     notFoundProducts,
+    override = true,
   }: {
     models: string[];
     title: string;
     notFoundProducts: any[];
+    override?: boolean;
   }) {
     if (!title) throw new Error('Product title is required!');
 
-    const { data, success, error } = await productRepo.getProductsByQuery(
+    if (models.length <= 0)
+      return Logger.warn(`No models assign for ${title}. Skipping...`);
+
+    const { data, success, error } = await productRepo.getAllProducts(
       `title:${title} AND status:active`,
     );
 
@@ -619,8 +634,8 @@ export class ModelEntries extends MetaobjectDefinition {
           .toLowerCase()
           .trim()
           .replace(/\u00A0/g, ' ') // non-breaking spaces
-          .replace(/[-\/]/g, ' ') // replace hyphens/slashes with space  ← fix
-          .replace(/[^a-z0-9\s]/g, '') // remove remaining special characters
+          .replace(/[-\/]/g, ' ') // replace hyphens/slashes with space
+          .replace(/[^a-z0-9\s+]/g, '') // remove remaining special characters excluding plus
           .replace(/\s+/g, ' '); // collapse multiple spaces
 
       const filteredProducts: any[] = data.filter((product: any) =>
@@ -669,7 +684,7 @@ export class ModelEntries extends MetaobjectDefinition {
 
         const hasAssignedModel = await productRepo.hasAssignedModel(product.id);
 
-        if (hasAssignedModel) {
+        if (hasAssignedModel && !override) {
           Logger.info(
             'Already assigned model to: ' + product.title + '. Skipping...',
           );
@@ -686,7 +701,7 @@ export class ModelEntries extends MetaobjectDefinition {
         }
       }
 
-      Logger.custom(`Models assigned to product :${title}`, {
+      Logger.custom(`Models assigned to product: ${title}`, {
         type: 'END',
         color: 'CYAN',
         mode: 'background',

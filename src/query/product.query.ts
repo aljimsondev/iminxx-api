@@ -39,8 +39,8 @@ export const GET_PRODUCTS_BY_SKU_QUERY = `query GetProductsBySKU($query: String!
   }
 }`;
 
-export const GET_PRODUCTS_BY_QUERY = `query GetProductsBySKU($query: String!) {
-  products(first: 50, query: $query) {
+export const GET_PRODUCTS_BY_QUERY = `query GetProductsByQuery($query: String!, $afterCursor: String) {
+  products(first: 50, query: $query, after: $afterCursor) {
     nodes {
       id
       title
@@ -49,6 +49,12 @@ export const GET_PRODUCTS_BY_QUERY = `query GetProductsBySKU($query: String!) {
         id
       }
       productType
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+      hasPreviousPage
+      startCursor
     }
   }
 }`;

@@ -112,37 +112,55 @@ export class Parser {
     if (!worksheet)
       throw new Error('Unable to parse worksheet for product models mapping!');
 
+    // Build header map: { "Product Name": 1, "SKU Model": 2, ... }
+    const headerMap: Record<string, number> = {};
+    const headerRow = worksheet.getRow(1);
+    headerRow.eachCell((cell, colNumber) => {
+      const header = this.getRichTextValue(cell.value).trim();
+      if (header) headerMap[header] = colNumber;
+    });
+
+    const getCell = (row: ExcelJS.Row, headerName: string) => {
+      const colNumber = headerMap[headerName];
+      return colNumber ? row.getCell(colNumber).value : null;
+    };
+
     const json: ProductModelType[] = [];
 
-    // Start from row 2 to skip the header row
     worksheet.eachRow((row, rowNumber) => {
       if (rowNumber === 1) return; // Skip header
 
-      const skuModel = row.getCell(1).value; // Column A: SKU Model
-      const productName = row.getCell(2).value; // Column B: Product Name
-      const productType = row.getCell(3).value; // Column C: Product Type
-      const humanModel = row.getCell(4).value; // Column E: Human Model
+      const skuModel = getCell(row, 'SKU Model');
+      const productName = this.getRichTextValue(getCell(row, 'Product Name'));
+      const productType = this.getRichTextValue(getCell(row, 'Product Type'));
+      const humanModel = getCell(row, 'Human Model');
 
-      // Skip empty rows
       if (!skuModel && !productName) return;
 
-      // Normalize human model: split multi-line values into an array
       const humanModelRaw = humanModel ? String(humanModel).trim() : '';
       const humanModels = humanModelRaw
         ? humanModelRaw
             .split('\n')
             .map((m) => m.trim())
-            .filter((m) => m && m !== '-')
+            .filter((m) => m && m !== '-' && m !== 'No model')
         : [];
 
       json.push({
         productSKU: skuModel ? Number(skuModel) : null,
-        productName: productName ? String(productName).trim() : '',
-        productType: productType ? String(productType).trim() : '',
+        productName: productName.trim(),
+        productType: productType.trim(),
         models: humanModels,
       });
     });
 
     return json;
+  }
+
+  private getRichTextValue(cellValue: ExcelJS.CellValue): string {
+    if (!cellValue) return '';
+    if (typeof cellValue === 'object' && 'richText' in cellValue) {
+      return cellValue.richText.map((run) => run.text).join('');
+    }
+    return String(cellValue);
   }
 }
