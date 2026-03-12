@@ -12,7 +12,10 @@
     "load:entries": "npm run build && node dist/script/setup/load-entries.js",
     "setup": "npm run build && node dist/script/setup/index.js",
     "search:products": "npm run build && node dist/script/setup/search-products-by-title.js",
-    "update:model:photo": "npm run build && node dist/script/setup/update-model-images.js"
+    "update:model:photo": "npm run build && node dist/script/setup/update-model-images.js",
+    "find:model": "npm run build && node dist/script/setup/search-model.js",
+    "load:filtered:model:mapping": "npm run build && node dist/script/setup/load-filtered-product-model-mapping.js",
+    "load:model": "npm run build && node dist/script/setup/load-model.js"
   },
   "keywords": [],
   "author": "",

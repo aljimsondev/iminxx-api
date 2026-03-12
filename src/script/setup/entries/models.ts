@@ -662,8 +662,14 @@ export class ModelEntries extends MetaobjectDefinition {
             type: this.type,
             displayName: model,
           });
-          if (results.data?.length > 0) return results.data[0]; // return first matched metaobject
-          return null;
+
+          const modelResults = results.data;
+
+          const exactMatch = modelResults.find(
+            (res: any) => res.displayName.toLowerCase() === model.toLowerCase(),
+          );
+
+          return exactMatch;
         }),
       );
 

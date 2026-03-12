@@ -58,11 +58,12 @@ export const CREATE_METAOBJECT_QUERY = `mutation CreateMetaobject($metaobject: M
 }`;
 
 export const GET_METAOBJECT_ENTRY_BY_QUERY = `query GetMetaobjectsByQuery($type: String!, $query: String!) {
-    metaobjects(type: $type, first: 1, query: $query) {
+    metaobjects(type: $type, first: 50, query: $query) {
       nodes {
         handle
         id
         type
+        displayName
       }
     }
 }`;
