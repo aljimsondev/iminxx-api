@@ -58,11 +58,12 @@ export const CREATE_METAOBJECT_QUERY = `mutation CreateMetaobject($metaobject: M
 }`;
 
 export const GET_METAOBJECT_ENTRY_BY_QUERY = `query GetMetaobjectsByQuery($type: String!, $query: String!) {
-    metaobjects(type: $type, first: 1, query: $query) {
+    metaobjects(type: $type, first: 50, query: $query) {
       nodes {
         handle
         id
         type
+        displayName
       }
     }
 }`;
@@ -75,6 +76,23 @@ export const SET_METAFIELD_QUERY = `mutation MetafieldsSet($metafields: [Metafie
       value
       createdAt
       updatedAt
+    }
+    userErrors {
+      field
+      message
+      code
+    }
+  }
+}`;
+
+export const UPDATE_METAOBJECT_QUERY = `mutation UpdateMetaobject($id: ID!, $metaobject: MetaobjectUpdateInput!) {
+  metaobjectUpdate(id: $id, metaobject: $metaobject) {
+    metaobject {
+      handle
+      updatedAt
+      fields {
+        value
+      }
     }
     userErrors {
       field

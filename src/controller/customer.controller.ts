@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import * as customerService from '../service/customer.service';
 import {
   addressSchema,
+  emailSchema,
   newCustomerSchema,
   passwordSchema,
   updateCustomerSchema,
@@ -70,6 +71,100 @@ export const update = async (req: Request, res: Response) => {
     });
   } catch (err: any) {
     console.error('update Error:', err);
+    return res.status(500).json({
+      success: false,
+      error: err.message || err,
+    });
+  }
+};
+
+export const updatePassword = async (req: Request, res: Response) => {
+  try {
+    const body = await req.body;
+
+    const {
+      success: validationSuccess,
+      data: password,
+      error: validationError,
+    } = passwordSchema.safeParse(body.password);
+
+    if (!validationSuccess)
+      return res.json({
+        success: false,
+        error: JSON.parse(validationError?.message),
+      });
+
+    const response = await customerService.updatePassword({
+      password: password,
+      accessToken: req.user!.token,
+    });
+
+    return res.json(response);
+  } catch (err: any) {
+    console.error('updatePassword Error:', err);
+    return res.status(500).json({
+      success: false,
+      error: err.message || err,
+    });
+  }
+};
+
+export const createAccessToken = async (req: Request, res: Response) => {
+  try {
+    const body = req.body;
+    const password = body?.password;
+    const email = body?.email;
+
+    if (!email || !password) throw new Error('Missing credentials!');
+
+    const {
+      success: passwordValidation,
+      data: validatedPassword,
+      error: passwordValidationError,
+    } = passwordSchema.safeParse(password);
+
+    const {
+      success: emailValidation,
+      data: validatedEmail,
+      error: emailValidationError,
+    } = emailSchema.safeParse(email);
+
+    if (!passwordValidation) {
+      return res.json({
+        success: false,
+        error: JSON.parse(passwordValidationError?.message),
+      });
+    }
+
+    if (!emailValidation) {
+      return res.json({
+        success: false,
+        error: JSON.parse(emailValidationError?.message),
+      });
+    }
+
+    const result = await customerService.generateAccessToken({
+      email: validatedEmail,
+      password: validatedPassword,
+    });
+
+    if (result?.success) {
+      // token created successfully
+      const token = result.data.accessToken;
+      const expiresAt = result.data.expiresAt;
+
+      // set the cookie uat (user access token)
+      res.cookie('uat', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        expires: new Date(expiresAt),
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      });
+    }
+
+    return res.json(result);
+  } catch (err: any) {
+    console.error('createAccessToken Error:', err);
     return res.status(500).json({
       success: false,
       error: err.message || err,

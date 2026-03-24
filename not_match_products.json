@@ -1,0 +1,134 @@
+[
+  {
+    "title": "Oomph! Matte Seamless Bikini Cheeky",
+    "results": [],
+    "count": 0
+  },
+  {
+    "title": "Live Free! Lacy Frills Bralette",
+    "results": [],
+    "count": 0
+  },
+  {
+    "title": "Knitted Tube",
+    "results": [],
+    "count": 0
+  },
+  {
+    "title": "Day-In, Night-Out Seamless Mid-Rise Cheeky",
+    "results": [],
+    "count": 0
+  },
+  {
+    "title": "Lovely Bow Push Up Wireless Bra",
+    "results": [],
+    "count": 0
+  },
+  {
+    "title": "OOMPH! Velvet-Matte Teardrop 2-Way Wireless Push Up Bra",
+    "results": [],
+    "count": 0
+  },
+  {
+    "title": "Comfy Sleek! Seamless Lightly-Lined Wireless Bra",
+    "results": [
+      {
+        "id": "gid://shopify/Product/15306826875251",
+        "title": "Comfy Sleek! Seamless Push Up Wireless Bra",
+        "category": {
+          "name": "Bras",
+          "id": "gid://shopify/TaxonomyCategory/archived-205"
+        },
+        "productType": "Bra"
+      }
+    ],
+    "count": 1
+  },
+  {
+    "title": "Lace Curves Push Up Wireless Bra",
+    "results": [
+      {
+        "id": "gid://shopify/Product/15305897181555",
+        "title": "Lace Curves Cheeky in Pastel Nude",
+        "category": {
+          "name": "Underwear",
+          "id": "gid://shopify/TaxonomyCategory/archived-217"
+        },
+        "productType": "Cheekies"
+      },
+      {
+        "id": "gid://shopify/Product/15306822844787",
+        "title": "Perky Lift! Lash-Lace Seamless Push Up Wireless Bra",
+        "category": {
+          "name": "Bras",
+          "id": "gid://shopify/TaxonomyCategory/aa-1-6-3"
+        },
+        "productType": "Bra"
+      },
+      {
+        "id": "gid://shopify/Product/15306825204083",
+        "title": "Lift It Up! V2.0 Lace 100% Non-Slip Super Push Up Strapless Wireless Bra",
+        "category": {
+          "name": "Bras",
+          "id": "gid://shopify/TaxonomyCategory/archived-205"
+        },
+        "productType": "Bra"
+      },
+      {
+        "id": "gid://shopify/Product/15306825466227",
+        "title": "Perky Curves! Lace-Trim Push Up Wireless Bra",
+        "category": {
+          "name": "Bras",
+          "id": "gid://shopify/TaxonomyCategory/archived-205"
+        },
+        "productType": "Bra"
+      },
+      {
+        "id": "gid://shopify/Product/15306826318195",
+        "title": "Buttery Lash-Lace! Seamless Super Push Up Wireless Bra",
+        "category": null,
+        "productType": "Bra"
+      },
+      {
+        "id": "gid://shopify/Product/15306827497843",
+        "title": "Modern Lace Deep-U Wireless Push Up Bra",
+        "category": {
+          "name": "Uncategorized",
+          "id": "gid://shopify/TaxonomyCategory/na"
+        },
+        "productType": "Bra"
+      }
+    ],
+    "count": 6
+  },
+  {
+    "title": "The Romantic Lacey Cheeky",
+    "results": [
+      {
+        "id": "gid://shopify/Product/15306826547571",
+        "title": "The Romantic Lacey Bralette",
+        "category": {
+          "name": "Bras",
+          "id": "gid://shopify/TaxonomyCategory/archived-205"
+        },
+        "productType": "Bra"
+      }
+    ],
+    "count": 1
+  },
+  {
+    "title": "The Silky Smooth! Lace Trim Low-Rise Cheekie",
+    "results": [
+      {
+        "id": "gid://shopify/Product/15306825531763",
+        "title": "The Silky Smooth! Lace Trim Lightly-Lined Wireless Bra",
+        "category": {
+          "name": "Bras",
+          "id": "gid://shopify/TaxonomyCategory/archived-205"
+        },
+        "productType": "Bra"
+      }
+    ],
+    "count": 1
+  }
+]

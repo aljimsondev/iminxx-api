@@ -2,6 +2,7 @@ import axios from 'axios';
 
 import { SHOPIFY_GRAPHQL } from '../constants/constant';
 import {
+  GENERATE_ACCESS_TOKEN,
   GET_CUSTOMER_BIRTHDAY,
   GET_WISHLISTED_ITEMS,
   PASSWORD_RESET_BY_URL_QUERY,
@@ -10,6 +11,7 @@ import {
   SIGNUP_NEW_CUSTOMER_QUERY,
   STOREFRONT_CUSTOMER_QUERY,
   UPDATE_CUSTOMER_ADDRESS_QUERY,
+  UPDATE_CUSTOMER_PASSWORD_QUERY,
   UPDATE_CUSTOMER_QUERY,
 } from '../query/customer.query';
 import { Address, NewCustomer, UpdateCustomerData } from '../types/customer';
@@ -577,5 +579,106 @@ export default class CustomerRepository {
         error: e?.message,
       };
     }
+  }
+
+  async updateUserPassword({
+    password,
+    accessToken,
+  }: {
+    password: string;
+    accessToken: string;
+  }) {
+    const variables = {
+      customerAccessToken: accessToken,
+      customer: {
+        password: password,
+      },
+    };
+
+    const response = await axios.post(
+      process.env.STOREFRONT_API_ENDPOINT!,
+      {
+        query: UPDATE_CUSTOMER_PASSWORD_QUERY,
+        variables: variables,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Shopify-Storefront-Access-Token':
+            process.env.STOREFRONT_ACCESS_TOKEN,
+        },
+      },
+    );
+
+    const data = response.data;
+
+    if (data?.errors) {
+      return {
+        success: false,
+        error: data.errors,
+      };
+    }
+
+    const customerUpdate = data?.data?.customerUpdate;
+    if (customerUpdate?.customerUserErrors?.length > 0)
+      return {
+        success: false,
+        error: customerUpdate.customerUserErrors,
+      };
+
+    return {
+      success: true,
+      data: customerUpdate?.customer,
+    };
+  }
+
+  async generateAccessToken({
+    email,
+    password,
+  }: {
+    email: string;
+    password: string;
+  }) {
+    const variables = {
+      input: {
+        email: email,
+        password: password,
+      },
+    };
+
+    const response = await axios.post(
+      process.env.STOREFRONT_API_ENDPOINT!,
+      {
+        query: GENERATE_ACCESS_TOKEN,
+        variables: variables,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Shopify-Storefront-Access-Token':
+            process.env.STOREFRONT_ACCESS_TOKEN,
+        },
+      },
+    );
+
+    const data = response.data;
+
+    if (data?.errors) {
+      return {
+        success: false,
+        error: data.errors,
+      };
+    }
+
+    const tokenCreate = data?.data?.customerAccessTokenCreate;
+
+    if (tokenCreate?.customerUserErrors?.length > 0) {
+      return { success: false, error: tokenCreate.customerUserErrors };
+    }
+
+    return {
+      success: true,
+      data: tokenCreate?.customerAccessToken,
+    };
   }
 }

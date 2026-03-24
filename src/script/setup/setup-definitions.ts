@@ -1,3 +1,4 @@
+import { Logger } from '@/utils/logger';
 import { CollectionMetafieldDefinition } from './metafield/collection';
 import { CustomerMetafieldDefinition } from './metafield/customer';
 import { ProductMetafieldDefinition } from './metafield/product';
@@ -9,14 +10,27 @@ import { MetaobjectDefinitionGenerator } from './metaobject';
     .generate()
     .then(async ({ promoDetailsMetaobject, modelMetaobject }) => {
       // run metafield generation after metaobject has successfully created
+      const generators = [
+        new CustomerMetafieldDefinition(),
+        new CollectionMetafieldDefinition(),
+        new ProductMetafieldDefinition(),
+        new ShopMetafieldDefinition(),
+      ];
 
-      await Promise.all([
-        new CustomerMetafieldDefinition().generate(),
-        new CollectionMetafieldDefinition().generate(),
-        new ProductMetafieldDefinition().generate({ modelMetaobject }),
-        new ShopMetafieldDefinition().generate({
-          promoDetailsMetaobject,
-        }),
-      ]);
+      for (const generator of generators) {
+        if (generator instanceof ShopMetafieldDefinition) {
+          await generator.generate({ promoDetailsMetaobject });
+        } else if (generator instanceof ProductMetafieldDefinition) {
+          await generator.generate({ modelMetaobject });
+        } else {
+          await generator.generate();
+        }
+      }
+
+      Logger.custom('Finished generating metafield definition', {
+        type: 'FINISHED',
+        color: 'CYAN',
+        mode: 'background',
+      });
     });
 })();

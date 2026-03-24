@@ -15,7 +15,7 @@ export class ProductMetafieldDefinition extends MetafieldDefinition {
     super();
   }
 
-  generate({
+  async generate({
     modelMetaobject,
   }: {
     modelMetaobject?: MetaobjectDefinitionReturnType['data'];
@@ -26,14 +26,12 @@ export class ProductMetafieldDefinition extends MetafieldDefinition {
       color: 'MAGENTA',
     });
 
-    Promise.all([
-      this.generateModelsMetafieldDefinition(modelMetaobject),
-    ]).finally(() => {
-      Logger.custom('Finished generating product metafield definitions!', {
-        type: 'END',
-        mode: 'background',
-        color: 'BLACK',
-      });
+    await this.generateModelsMetafieldDefinition(modelMetaobject);
+
+    Logger.custom('Finished generating product metafield definitions!', {
+      type: 'END',
+      mode: 'background',
+      color: 'BLACK',
     });
   }
 

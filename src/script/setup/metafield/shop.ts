@@ -10,7 +10,7 @@ export class ShopMetafieldDefinition extends MetafieldDefinition {
     super();
   }
 
-  generate({
+  async generate({
     promoDetailsMetaobject,
   }: {
     promoDetailsMetaobject: MetaobjectDefinitionReturnType['data'] | undefined;
@@ -20,17 +20,14 @@ export class ShopMetafieldDefinition extends MetafieldDefinition {
       mode: 'background',
       color: 'MAGENTA',
     });
+    await this.generateCustomPromoDetailsMetafieldDefinition(
+      promoDetailsMetaobject,
+    );
 
-    Promise.all([
-      this.generateCustomPromoDetailsMetafieldDefinition(
-        promoDetailsMetaobject,
-      ),
-    ]).finally(() => {
-      Logger.custom('Finished generating shop metafield definitions!', {
-        type: 'END',
-        mode: 'background',
-        color: 'BLACK',
-      });
+    Logger.custom('Finished generating shop metafield definitions!', {
+      type: 'END',
+      mode: 'background',
+      color: 'BLACK',
     });
   }
 

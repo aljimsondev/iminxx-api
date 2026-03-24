@@ -1,7 +1,11 @@
 import axios from 'axios';
 import 'dotenv/config';
 import { SHOPIFY_GRAPHQL } from '../constants/constant';
-import { GET_PRODUCTS_BY_SKU_QUERY } from '../query/product.query';
+import {
+  GET_METAFIELD_QUERY,
+  GET_PRODUCTS_BY_QUERY,
+  GET_PRODUCTS_BY_SKU_QUERY,
+} from '../query/product.query';
 
 export default class ProductRepository {
   constructProductBundleDetails(data: {
@@ -59,6 +63,111 @@ export default class ProductRepository {
       success: true,
       data: results,
     };
+  }
+
+  async getProductsByQuery(query: string, afterCursor?: string) {
+    if (!query) throw new Error('Query is required!');
+
+    const response = await axios.post(
+      SHOPIFY_GRAPHQL,
+      {
+        query: GET_PRODUCTS_BY_QUERY,
+        variables: {
+          query: query,
+          afterCursor: afterCursor,
+        },
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Shopify-Access-Token': process.env.ADMIN_ACCESS_TOKEN,
+        },
+      },
+    );
+
+    if (response?.data?.errors?.length > 0) {
+      return {
+        success: false,
+        error: response.data.errors,
+      };
+    }
+
+    const results = response?.data?.data?.products?.nodes;
+    const pagination = response?.data?.data?.products?.pageInfo;
+
+    return {
+      success: true,
+      data: results,
+      pagination: pagination,
+    };
+  }
+
+  async getAllProducts(
+    query: string,
+  ): Promise<{ success: boolean; error?: any; data?: any }> {
+    let products = [];
+    let afterCursor: string | undefined = undefined;
+    let error = null;
+
+    while (true) {
+      const res = await this.getProductsByQuery(query, afterCursor);
+
+      if (!res.success) {
+        error = res.error;
+
+        break;
+      }
+
+      products.push(...res.data);
+
+      if (!res.pagination?.hasNextPage) break;
+
+      if (res.pagination?.endCursor) afterCursor = res.pagination.endCursor;
+    }
+
+    if (error) {
+      return {
+        success: false,
+        error: error,
+      };
+    }
+
+    return {
+      success: true,
+      data: products,
+    };
+  }
+
+  async hasAssignedModel(productId: string) {
+    const response = await axios.post(
+      SHOPIFY_GRAPHQL,
+      {
+        query: GET_METAFIELD_QUERY,
+        variables: {
+          ownerId: productId,
+          namespace: 'custom',
+          key: 'product_models',
+        },
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Shopify-Access-Token': process.env.ADMIN_ACCESS_TOKEN,
+        },
+      },
+    );
+
+    const data = response?.data?.data;
+
+    const metafield = data?.product?.metafield;
+
+    if (!metafield) return false;
+
+    const parsedValue = JSON.parse(metafield?.value);
+
+    if (parsedValue.length > 0) return true;
+
+    return false;
   }
 }
 

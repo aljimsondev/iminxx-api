@@ -1,4 +1,6 @@
+import { FileCreateInputDuplicateResolutionMode } from '@/types/file';
 import { Logger } from '@/utils/logger';
+import fs from 'fs';
 import { FileRepository } from '../../../repository/file.repository';
 import ProductRepository from '../../../repository/product.repository';
 import { ProductModelType } from '../../../utils/parser/xlsx-parser';
@@ -38,6 +40,79 @@ export class ModelEntries extends MetaobjectDefinition {
       Logger.error('Model upload error: ' + e?.message);
       throw e;
     }
+  }
+
+  async updateModelImages(models: Record<string, any>[]) {
+    Logger.custom('Starting model photo update', {
+      type: 'START',
+      color: 'MAGENTA',
+      mode: 'background',
+    });
+    for (const model of models) {
+      try {
+        const modelName = model['Model Name'];
+        const base64 = model['thumbnail'];
+
+        Logger.custom(`Updating ${modelName}...`, {
+          type: 'BEGIN',
+          color: 'WHITE',
+          mode: 'background',
+        });
+
+        const handle = this.createHandle(modelName);
+
+        // check if its already existed
+        const { data } = await this.getEntryByHandle(this.type, handle);
+
+        if (data) {
+          if (base64) {
+            const { data: uploadData, errors } = await this.uploadModelImage(
+              base64,
+              model['Model Name'],
+              {
+                duplicateResolutionMode: 'REPLACE', // replace existing model photo
+              },
+            );
+
+            if (uploadData) {
+              const imgUid = uploadData.id;
+
+              const result = await this.update(data.id, {
+                fields: [{ key: 'thumbnail', value: imgUid }],
+              });
+
+              if (result?.success) {
+                Logger.success(`Updated model ${modelName} successfully!`);
+              } else {
+                Logger.warn(
+                  `Model update for ${modelName} failed! Reason: ${JSON.stringify(result?.errors, null, 2)}`,
+                );
+              }
+            } else {
+              Logger.warn(
+                `Uploading image for ${model['Model Name']} failed!` +
+                  JSON.stringify(errors, null, 2),
+              );
+            }
+          } else {
+            Logger.warn('Unable to parsed model image for ' + handle);
+          }
+        } else {
+          Logger.info(`Entry ${handle} does not exist! Skipping update...`);
+        }
+      } catch (e: any) {
+        Logger.warn(
+          'Error updating model: ' + model['Model Name'] + ' Reason: ',
+        );
+        Logger.warn(JSON.stringify(e, null, 2));
+      }
+    }
+
+    Logger.custom('Model photo update task finished!', {
+      type: 'FINISHED',
+      color: 'CYAN',
+      mode: 'background',
+    });
   }
 
   /**
@@ -135,10 +210,17 @@ export class ModelEntries extends MetaobjectDefinition {
     });
   }
 
-  private async uploadModelImage(base64: string, filename: string) {
+  private async uploadModelImage(
+    base64: string,
+    filename: string,
+    options?: {
+      duplicateResolutionMode?: FileCreateInputDuplicateResolutionMode;
+    },
+  ) {
     const { success, data, errors } = await fileRepo.uploadBase64({
       base64,
       filename,
+      duplicateResolutionMode: options?.duplicateResolutionMode,
     });
 
     if (!success) {
@@ -281,6 +363,140 @@ export class ModelEntries extends MetaobjectDefinition {
     });
   }
 
+  async assignToProductsByHandle(products: ProductModelType[]) {
+    Logger.custom('Assigning models to products started!', {
+      type: 'START',
+      mode: 'background',
+      color: 'MAGENTA',
+    });
+
+    for (const product of products) {
+      // if no title found skip it
+      if (!product.productName) continue;
+
+      Logger.custom('Assigning models to product: ' + product.productName, {
+        type: 'BEGIN',
+        mode: 'background',
+        color: 'WHITE',
+      });
+
+      const result = await this.assignByProductHandle({
+        models: product.models,
+        handle: product.handle || '',
+      });
+
+      if (result?.success) {
+        Logger.success(
+          'Successfully assigned product models for product: ' +
+            product.productName,
+        );
+        console.log(JSON.stringify(result?.data, null, 2));
+      } else {
+        if (result?.errors) {
+          Logger.error(
+            'Failed to assigned product models for product SKU: ' +
+              product.productSKU +
+              ' ' +
+              'Reason: ' +
+              JSON.stringify(result?.errors, null, 2),
+          );
+        }
+      }
+    }
+    Logger.custom('Assigning  models to products task finished!', {
+      type: 'FINISHED',
+      color: 'CYAN',
+      mode: 'background',
+    });
+  }
+
+  async assignToProductsByTitle(products: ProductModelType[]) {
+    Logger.custom('Assigning models to products started!', {
+      type: 'START',
+      mode: 'background',
+      color: 'MAGENTA',
+    });
+
+    const failed = [];
+    const notMatchedProducts: string[] = [];
+
+    for (const product of products) {
+      try {
+        // if no title found skip it
+        if (!product.productName) continue;
+
+        Logger.custom('Assigning models to product: ' + product.productName, {
+          type: 'BEGIN',
+          mode: 'background',
+          color: 'WHITE',
+        });
+
+        const result = await this.assignByTitle({
+          models: product.models,
+          title: product.productName,
+          notFoundProducts: notMatchedProducts,
+        });
+
+        if (result?.success) {
+          Logger.success(
+            'Successfully assigned product models for product: ' +
+              product.productName,
+          );
+          console.log(JSON.stringify(result?.data, null, 2));
+        } else {
+          if (result?.errors) {
+            Logger.error(
+              'Failed to assigned product models for product SKU: ' +
+                product.productSKU +
+                ' ' +
+                'Reason: ' +
+                JSON.stringify(result?.errors, null, 2),
+            );
+          }
+        }
+      } catch (e) {
+        Logger.warn(
+          'Error occurred assigning model to: ' + product.productName,
+        );
+
+        failed.push(product);
+      }
+    }
+
+    if (failed.length > 0) {
+      fs.writeFileSync('failed_products.json', JSON.stringify(failed, null, 2));
+      Logger.custom(
+        `Saved ${failed.length} failed products to failed_products.json`,
+        {
+          type: 'WRITE',
+          color: 'MAGENTA',
+          mode: 'text',
+        },
+      );
+    }
+
+    if (notMatchedProducts.length > 0) {
+      fs.writeFileSync(
+        'not_match_products.json',
+        JSON.stringify(notMatchedProducts, null, 2),
+      );
+      Logger.custom(
+        `Saved ${notMatchedProducts.length} not matched products to not_match_products.json`,
+        {
+          type: 'WRITE',
+          color: 'MAGENTA',
+          mode: 'text',
+        },
+      );
+    }
+
+    Logger.custom('Assigning  models to products task finished!', {
+      type: 'FINISHED',
+      color: 'CYAN',
+      mode: 'background',
+    });
+  }
+
   private async assign({
     models,
     productSKU,
@@ -335,6 +551,172 @@ export class ModelEntries extends MetaobjectDefinition {
       ]);
 
       return result;
+    }
+    return {
+      success: false,
+      errors: error,
+    };
+  }
+
+  private async assignByProductHandle({
+    models,
+    handle,
+  }: {
+    models: string[];
+    handle: string;
+  }) {
+    if (!handle) throw new Error('Product handle is required!');
+
+    const { data, success, error } = await productRepo.getProductsByQuery(
+      `handle:${handle}`,
+    );
+
+    if (success) {
+      const product = data[0];
+
+      if (!product)
+        return Logger.warn(
+          'Product with handle ' + handle + ' does not exist. Skipping...',
+        );
+
+      const modelsReference = await Promise.all(
+        models.map(async (model) => {
+          const results = await this.findByDisplayName({
+            type: this.type,
+            displayName: model,
+          });
+          if (results.data?.length > 0) return results.data[0]; // return first matched metaobject
+          return null;
+        }),
+      );
+      const filterModels = modelsReference.filter((model) => model !== null);
+      // NOTE: Metafields allows maximum of 25 per transaction so in case that there are multiple models in a product which is impossible in the current use-case, you can use createChunks method
+      const result = await this.metafield.set([
+        {
+          type: 'list.metaobject_reference',
+          ownerId: product.id,
+          namespace: 'custom',
+          key: 'product_models',
+          value: JSON.stringify(filterModels.map((model) => model.id)),
+        },
+      ]);
+      return result;
+    }
+    return {
+      success: false,
+      errors: error,
+    };
+  }
+
+  private async assignByTitle({
+    models,
+    title,
+    notFoundProducts,
+    override = true,
+  }: {
+    models: string[];
+    title: string;
+    notFoundProducts: any[];
+    override?: boolean;
+  }) {
+    if (!title) throw new Error('Product title is required!');
+
+    if (models.length <= 0)
+      return Logger.warn(`No models assign for ${title}. Skipping...`);
+
+    const { data, success, error } = await productRepo.getAllProducts(
+      `title:${title} AND status:active`,
+    );
+
+    if (success) {
+      const normalize = (str: string) =>
+        str
+          .toLowerCase()
+          .trim()
+          .replace(/\u00A0/g, ' ') // non-breaking spaces
+          .replace(/[-\/]/g, ' ') // replace hyphens/slashes with space
+          .replace(/[^a-z0-9\s+]/g, '') // remove remaining special characters excluding plus
+          .replace(/\s+/g, ' '); // collapse multiple spaces
+
+      const filteredProducts: any[] = data.filter((product: any) =>
+        normalize(product.title).startsWith(normalize(title)),
+      );
+
+      if (filteredProducts.length <= 0) {
+        const res = {
+          title: title,
+          results: data,
+          count: data.length,
+        };
+
+        notFoundProducts.push(res); // push to array for record keeping
+
+        return Logger.warn(
+          'No matched results for product: ' + title + '. Skipping...',
+        );
+      }
+
+      const modelsReference = await Promise.all(
+        models.map(async (model) => {
+          const results = await this.findByDisplayName({
+            type: this.type,
+            displayName: model,
+          });
+
+          const modelResults = results.data;
+
+          const exactMatch = modelResults.find(
+            (res: any) => res.displayName.toLowerCase() === model.toLowerCase(),
+          );
+
+          return exactMatch;
+        }),
+      );
+
+      const filterModels = modelsReference.filter((model) => model !== null);
+
+      if (filterModels.length <= 0)
+        return Logger.warn(
+          'No result for model ' + JSON.stringify(models, null, 2),
+        );
+
+      for (const product of filteredProducts) {
+        // check if metafield already assign
+        Logger.custom('Assigning to: ' + product.title, {
+          type: 'BEGIN',
+          color: 'WHITE',
+          mode: 'background',
+        });
+
+        const hasAssignedModel = await productRepo.hasAssignedModel(product.id);
+
+        if (hasAssignedModel && !override) {
+          Logger.info(
+            'Already assigned model to: ' + product.title + '. Skipping...',
+          );
+        } else {
+          await this.metafield.set([
+            {
+              type: 'list.metaobject_reference',
+              ownerId: product.id,
+              namespace: 'custom',
+              key: 'product_models',
+              value: JSON.stringify(filterModels.map((model) => model.id)),
+            },
+          ]);
+        }
+      }
+
+      Logger.custom(`Models assigned to product: ${title}`, {
+        type: 'END',
+        color: 'CYAN',
+        mode: 'background',
+      });
+
+      return {
+        success: true,
+        data: filteredProducts.map((product) => product.title),
+      };
     }
     return {
       success: false,

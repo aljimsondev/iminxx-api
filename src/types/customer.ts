@@ -95,6 +95,8 @@ const secureEmail = z
     'Email contains potentially malicious content',
   );
 
+export const emailSchema = secureEmail;
+
 // Date validation - ISO 8601 format (YYYY-MM-DD)
 const birthdayString = z
   .string()

@@ -13,15 +13,14 @@ export class CollectionMetafieldDefinition extends MetafieldDefinition {
       color: 'MAGENTA',
     });
 
-    Promise.all([
-      this.generateCreateFitProductFilterConfiguration(),
-      this.generateCreateFitNavigationScreenSelectorMapping(),
-    ]).finally(() => {
-      Logger.custom('Finished generating collection metafield definitions!', {
-        type: 'END',
-        mode: 'background',
-        color: 'BLACK',
-      });
+    await this.generateCreateFitProductFilterConfiguration();
+    await this.generateCreateFitNavigationScreenSelectorMapping();
+    await this.generateDynamicSmartFilterMetafield();
+
+    Logger.custom('Finished generating collection metafield definitions!', {
+      type: 'END',
+      mode: 'background',
+      color: 'BLACK',
     });
   }
 
@@ -91,6 +90,35 @@ export class CollectionMetafieldDefinition extends MetafieldDefinition {
         e,
         this.generateCreateFitNavigationScreenSelectorMapping.name,
       );
+    }
+  }
+
+  async generateDynamicSmartFilterMetafield() {
+    try {
+      Logger.custom('Generating Dynamic Smart Filter metafield definition...', {
+        type: 'BEGIN',
+        mode: 'background',
+        color: 'WHITE',
+      });
+
+      const { success, data, errors } = await this.create({
+        name: 'Dynamic Smart Filter',
+        namespace: 'custom',
+        key: 'dynamic_smart_filter',
+        description: 'Enable/Disable Collection template dynamic smart filter!',
+        type: 'boolean',
+        ownerType: OWNER_TYPE.COLLECTION,
+        pin: true,
+      });
+
+      if (!success) throw errors;
+
+      Logger.success(
+        'Feature: Dynamic Smart Filter  metafield definition created successfully! Data: ' +
+          JSON.stringify(data, null, 2),
+      );
+    } catch (e) {
+      this.logError(e, this.generateDynamicSmartFilterMetafield.name);
     }
   }
 }

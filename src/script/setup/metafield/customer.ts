@@ -13,16 +13,14 @@ export class CustomerMetafieldDefinition extends MetafieldDefinition {
       color: 'MAGENTA',
     });
 
-    Promise.all([
-      this.generateCustomerWishlistedItemsMetafield(),
-      this.generateCustomerWishlistsSyncDateMetafield(),
-      this.generateCustomerBirthdateMetafield(),
-    ]).finally(() => {
-      Logger.custom('Finished generating customer metafield definitions!', {
-        type: 'END',
-        mode: 'background',
-        color: 'BLACK',
-      });
+    await this.generateCustomerWishlistedItemsMetafield();
+    await this.generateCustomerWishlistsSyncDateMetafield();
+    await this.generateCustomerBirthdateMetafield();
+
+    Logger.custom('Finished generating customer metafield definitions!', {
+      type: 'END',
+      mode: 'background',
+      color: 'BLACK',
     });
   }
 
