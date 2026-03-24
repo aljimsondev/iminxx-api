@@ -10,6 +10,35 @@ export const UPDATE_CUSTOMER_QUERY = `mutation updateCustomerMetafields($input: 
       }
     }`;
 
+export const UPDATE_CUSTOMER_PASSWORD_QUERY = `
+    mutation customerUpdate($customerAccessToken: String!, $customer: CustomerUpdateInput!) {
+      customerUpdate(customerAccessToken: $customerAccessToken, customer: $customer) {
+        customer {
+          id
+          updatedAt
+        }
+        customerUserErrors {
+          field
+          message
+        }
+      }
+    }
+    `;
+
+export const GENERATE_ACCESS_TOKEN = `
+    mutation customerAccessTokenCreate($input: CustomerAccessTokenCreateInput!) {
+      customerAccessTokenCreate(input: $input) {
+        customerAccessToken {
+          accessToken
+          expiresAt
+        }
+        customerUserErrors {
+          field
+          message
+        }
+      }
+    }`;
+
 export const UPDATE_CUSTOMER_ADDRESS_QUERY = `mutation customerAddressUpdate($customerId: ID!, $addressId: ID!, $address: MailingAddressInput!, $setAsDefault: Boolean) {
   customerAddressUpdate(customerId: $customerId, addressId: $addressId, address: $address, setAsDefault: $setAsDefault) {
     address {

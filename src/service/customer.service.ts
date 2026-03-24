@@ -12,6 +12,26 @@ export const update = async (
   return data;
 };
 
+export const updatePassword = async ({
+  accessToken,
+  password,
+}: {
+  password: string;
+  accessToken: string;
+}) => {
+  return await customerRepo.updateUserPassword({ accessToken, password });
+};
+
+export const generateAccessToken = async ({
+  email,
+  password,
+}: {
+  email: string;
+  password: string;
+}) => {
+  return await customerRepo.generateAccessToken({ email, password });
+};
+
 export const updateAddress = async ({
   addressId,
   customerId,
