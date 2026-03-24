@@ -9,7 +9,12 @@ import productRoutes from './routes/product.route';
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    credentials: true,
+    origin: ['https://iminxx-test.myshopify.com', 'https://iminxx.com'],
+  }),
+);
 app.use(bodyParser.json());
 app.use(cookieParser());
 
