@@ -158,7 +158,7 @@ export class ModelEntries extends MetaobjectDefinition {
           label: model['Model Name'] || '',
           thumbnail: imgUid,
           underbust: model['Underbust (cm)'] || '',
-          overbust: model['Underbust (cm)'] || '',
+          overbust: model['Overbust (cm)'] || '',
           bust_size: model['Bust Size'] || '',
           hip: model['Hip (cm)'] || '',
           waist: model['Waist (cm)'] || '',

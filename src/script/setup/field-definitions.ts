@@ -39,7 +39,7 @@ export const modelDefinitions: MetaobjectDefinitionInputType[] = [
   },
   {
     key: 'bust_size',
-    type: 'list.single_line_text_field',
+    type: 'single_line_text_field',
     name: 'Bust Size',
     validations: [
       {
@@ -61,7 +61,7 @@ export const modelDefinitions: MetaobjectDefinitionInputType[] = [
   {
     name: 'UK Size (Bottoms)',
     key: 'uk_size_bottoms',
-    type: 'list.single_line_text_field',
+    type: 'single_line_text_field',
     validations: [
       {
         name: 'choices',
@@ -83,7 +83,7 @@ export const modelDefinitions: MetaobjectDefinitionInputType[] = [
   {
     name: "I'M IN Bodysuit Size",
     key: 'i_m_in_bodysuit_size',
-    type: 'list.single_line_text_field',
+    type: 'single_line_text_field',
     validations: [
       {
         name: 'choices',
@@ -94,7 +94,7 @@ export const modelDefinitions: MetaobjectDefinitionInputType[] = [
   {
     name: "I'M IN Lounge Top Size",
     key: 'i_m_in_lounge_top_size',
-    type: 'list.single_line_text_field',
+    type: 'single_line_text_field',
     validations: [
       {
         name: 'choices',
@@ -105,7 +105,7 @@ export const modelDefinitions: MetaobjectDefinitionInputType[] = [
   {
     name: "I'M IN Thermal Top Size",
     key: 'i_m_in_thermal_top_size',
-    type: 'list.single_line_text_field',
+    type: 'single_line_text_field',
     validations: [
       {
         name: 'choices',
@@ -116,7 +116,7 @@ export const modelDefinitions: MetaobjectDefinitionInputType[] = [
   {
     name: "I'M IN Thermal Pants Size",
     key: 'i_m_in_thermal_pants_size',
-    type: 'list.single_line_text_field',
+    type: 'single_line_text_field',
     validations: [
       {
         name: 'choices',

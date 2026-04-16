@@ -15,6 +15,9 @@ import {
   UPDATE_CUSTOMER_QUERY,
 } from '../query/customer.query';
 import { Address, NewCustomer, UpdateCustomerData } from '../types/customer';
+import ProductRepository from './product.repository';
+
+const productRepo = new ProductRepository();
 
 export default class CustomerRepository {
   async signup(customer: NewCustomer) {
@@ -23,15 +26,29 @@ export default class CustomerRepository {
     if (!storefrontApiEndpoint)
       throw new Error('Storefront API endpoint is not configured!');
 
-    const { acceptsMarketing, email, firstName, lastName, password, birthday } =
-      customer;
+    const {
+      acceptsMarketing,
+      email,
+      firstName,
+      lastName,
+      password,
+      birthday,
+      phone,
+    } = customer;
 
     const response = await axios.post(
       storefrontApiEndpoint,
       {
         query: SIGNUP_NEW_CUSTOMER_QUERY,
         variables: {
-          input: { acceptsMarketing, email, firstName, lastName, password },
+          input: {
+            acceptsMarketing,
+            email,
+            firstName,
+            lastName,
+            password,
+            phone,
+          },
         },
       },
       {
@@ -417,6 +434,8 @@ export default class CustomerRepository {
       if (!customerId) throw new Error('Missing customerId parameter!');
       if (!productIds) throw new Error('Missing productId parameter!');
 
+      const validIds = await productRepo.filterActiveProductIds(productIds);
+
       const variables = {
         metafields: [
           {
@@ -424,7 +443,7 @@ export default class CustomerRepository {
             namespace: 'custom',
             ownerId: `gid://shopify/Customer/${customerId}`,
             type: 'list.single_line_text_field',
-            value: JSON.stringify(productIds),
+            value: JSON.stringify(validIds),
           },
           {
             key: 'wishlists_sync_date',

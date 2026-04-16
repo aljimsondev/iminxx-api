@@ -132,8 +132,12 @@ export const newCustomerSchema = z.object({
   firstName: nameString.describe('Customer first name'),
   lastName: nameString.describe('Customer last name'),
   email: secureEmail.describe('Customer email address'),
+
   password: z.any(), // Already handled by passwordSchema
-  birthday: birthdayString.describe('Date of birth in YYYY-MM-DD format'),
+  phone: z.string().optional().describe('Customer phone number'),
+  birthday: birthdayString
+    .optional()
+    .describe('Date of birth in YYYY-MM-DD format'),
   acceptsMarketing: z.boolean().default(false).describe('Marketing opt-in'),
 });
 
