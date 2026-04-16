@@ -26,15 +26,29 @@ export default class CustomerRepository {
     if (!storefrontApiEndpoint)
       throw new Error('Storefront API endpoint is not configured!');
 
-    const { acceptsMarketing, email, firstName, lastName, password, birthday } =
-      customer;
+    const {
+      acceptsMarketing,
+      email,
+      firstName,
+      lastName,
+      password,
+      birthday,
+      phone,
+    } = customer;
 
     const response = await axios.post(
       storefrontApiEndpoint,
       {
         query: SIGNUP_NEW_CUSTOMER_QUERY,
         variables: {
-          input: { acceptsMarketing, email, firstName, lastName, password },
+          input: {
+            acceptsMarketing,
+            email,
+            firstName,
+            lastName,
+            password,
+            phone,
+          },
         },
       },
       {
