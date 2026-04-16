@@ -71,3 +71,13 @@ export const GET_METAFIELD_QUERY = `
     }
   }
 `;
+
+export const GET_PRODUCT_BY_ID_QUERY = `query GetProductByID($ownerId: ID!) {
+  product(id: $ownerId) {
+    handle
+    id
+    publishedAt
+    productType
+    title
+  }
+}`;

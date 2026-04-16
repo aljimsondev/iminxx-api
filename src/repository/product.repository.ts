@@ -3,6 +3,7 @@ import 'dotenv/config';
 import { SHOPIFY_GRAPHQL } from '../constants/constant';
 import {
   GET_METAFIELD_QUERY,
+  GET_PRODUCT_BY_ID_QUERY,
   GET_PRODUCTS_BY_QUERY,
   GET_PRODUCTS_BY_SKU_QUERY,
 } from '../query/product.query';
@@ -168,6 +169,47 @@ export default class ProductRepository {
     if (parsedValue.length > 0) return true;
 
     return false;
+  }
+
+  constructID(id: number | string) {
+    return `gid://shopify/Product/${id}`;
+  }
+
+  async getProductById(id: string) {
+    if (!id) throw new Error('Product ID is required!');
+
+    const response = await axios.post(
+      SHOPIFY_GRAPHQL,
+      {
+        query: GET_PRODUCT_BY_ID_QUERY,
+        variables: {
+          ownerId: this.constructID(id),
+        },
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Shopify-Access-Token': process.env.ADMIN_ACCESS_TOKEN,
+        },
+      },
+    );
+
+    const data = response.data.data?.product;
+
+    return data;
+  }
+
+  async filterActiveProductIds(productIds: string[]) {
+    const results = await Promise.all(
+      productIds.map(async (id) => {
+        const product = await this.getProductById(id);
+        if (!product) return null;
+
+        return id;
+      }),
+    );
+
+    return results.filter(Boolean);
   }
 }
 
