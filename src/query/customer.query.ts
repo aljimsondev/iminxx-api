@@ -113,6 +113,32 @@ export const SIGNUP_NEW_CUSTOMER_QUERY = `mutation customerCreate($input: Custom
   }
 }`;
 
+export const ADMIN_API_SIGNUP_NEW_CUSTOMER_QUERY = `mutation customerCreate($input: CustomerInput!) {
+  customerCreate(input: $input) {
+    userErrors {
+      field
+      message
+    }
+    customer {
+      id
+      email
+      phone
+      taxExempt
+      firstName
+      lastName
+      amountSpent {
+        amount
+        currencyCode
+      }
+      smsMarketingConsent {
+        marketingState
+        marketingOptInLevel
+        consentUpdatedAt
+      }
+    }
+  }
+}`;
+
 export const SEND_PASSWORD_RESET_LINK_QUERY = `mutation customerRecover($email: String!) {
   customerRecover(email: $email) {
     customerUserErrors {

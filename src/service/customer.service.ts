@@ -96,3 +96,8 @@ export const resetPasswordByURL = async (params: {
   url: string;
   password: string;
 }) => await customerRepo.resetPasswordByURL(params);
+
+// ── v2  ───────────────────────────────────────────
+
+export const signupV2 = async (customer: NewCustomer) =>
+  await customerRepo.signupV2(customer);

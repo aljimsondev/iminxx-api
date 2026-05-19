@@ -11,6 +11,7 @@ import {
   updateAddress,
   updatePassword,
 } from '../controller/customer.controller';
+import { signupV2 } from '../controller/customer.controller-v2';
 import { verifyCustomerAccessToken } from '../middleware/verify-customer-token';
 const router = express.Router();
 
@@ -32,5 +33,8 @@ router.post(
   updatePassword,
 );
 router.post('/create/access-token', createAccessToken);
+
+// ── v2 ───────────────────────────────────────────
+router.post('/v2/signup', signupV2);
 
 export default router;
