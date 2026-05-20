@@ -16,6 +16,7 @@ import {
 } from '../query/customer.query';
 import { Address, NewCustomer, UpdateCustomerData } from '../types/customer';
 import ProductRepository from './product.repository';
+import { redisRepository } from './redis.repository';
 
 const productRepo = new ProductRepository();
 
@@ -79,6 +80,108 @@ export default class CustomerRepository {
         error: customerData?.customerUserErrors,
       };
 
+    if (!customerData?.customer)
+      return {
+        success: false,
+        error: 'Unable to create new customer!',
+      };
+
+    // in this case the user account is created
+    const newCustomer = customerData?.customer;
+
+    try {
+      // set the customer birthday metafield
+      const result = await this.update(newCustomer.id, {
+        metafields: {
+          namespace: 'facts',
+          key: 'birth_date',
+          value: birthday,
+        },
+      });
+
+      if (!result.success) throw result?.error;
+    } catch (e) {
+      console.warn('Failed on setting customer birthdate! Reason: ');
+      console.warn(e);
+    }
+
+    return {
+      success: true,
+      data: customerData?.customer,
+    };
+  }
+
+  async signupV2(customer: NewCustomer) {
+    const storefrontApiEndpoint = process.env.STOREFRONT_API_ENDPOINT;
+
+    if (!storefrontApiEndpoint)
+      throw new Error('Storefront API endpoint is not configured!');
+
+    const {
+      acceptsMarketing,
+      email,
+      firstName,
+      lastName,
+      password,
+      birthday,
+      phone,
+    } = customer;
+
+    const response = await axios.post(
+      storefrontApiEndpoint,
+      {
+        query: SIGNUP_NEW_CUSTOMER_QUERY,
+        variables: {
+          input: {
+            acceptsMarketing,
+            email,
+            firstName,
+            lastName,
+            password,
+            phone,
+          },
+        },
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Shopify-Storefront-Access-Token':
+            process.env.STOREFRONT_ACCESS_TOKEN,
+        },
+      },
+    );
+
+    const data = response.data;
+
+    // check request errors
+    if (data?.errors) {
+      return {
+        success: false,
+        error: data?.errors,
+      };
+    }
+
+    const customerData = data?.data?.customerCreate;
+
+    // check shopify errors
+    if (customerData?.customerUserErrors?.length > 0) {
+      // check if code is CUSTOMER_DISABLED, hence by default shopify will send activation link to the user
+      const errors = customerData.customerUserErrors;
+
+      const customerDisabledError = errors.some(
+        (error: any) => error.code === 'CUSTOMER_DISABLED',
+      );
+
+      if (customerDisabledError) {
+        // saves customer information to redis in order to apply updates after the account is enabled/activated
+        this.saveUserInfoToRedis(customer);
+      }
+
+      return {
+        success: false,
+        error: customerData?.customerUserErrors,
+      };
+    }
     if (!customerData?.customer)
       return {
         success: false,
@@ -699,5 +802,18 @@ export default class CustomerRepository {
       success: true,
       data: tokenCreate?.customerAccessToken,
     };
+  }
+
+  async saveUserInfoToRedis(customer: NewCustomer) {
+    const ttlMap = {
+      oneHour: 60 * 60,
+      oneDay: 60 * 60 * 24,
+      oneWeek: 60 * 60 * 24 * 7,
+    };
+
+    const ttl = ttlMap.oneDay * 30; // the activation url is valid up to 30 days so we set the ttl to 30 days also
+    const { password, ...rest } = customer; // for security purposes exclude the password
+    const cachkey = `customer:${customer.email}`;
+    await redisRepository.set(cachkey, rest, ttl);
   }
 }

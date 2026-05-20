@@ -30,6 +30,7 @@
     "express-rate-limit": "^8.2.1",
     "forwarded-parse": "^2.1.2",
     "nodemon": "^3.1.11",
+    "redis": "^5.12.1",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "zod": "^4.3.6"
   },
